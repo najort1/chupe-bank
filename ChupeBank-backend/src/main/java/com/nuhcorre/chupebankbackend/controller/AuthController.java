@@ -47,19 +47,33 @@ public class AuthController {
             UserLoginDTO inputLogin = new ObjectMapper().readValue(decryptedBody, UserLoginDTO.class);
             var user = authenticationService.logar(inputLogin);
             var token = jwtService.generateToken(user);
-            return new LoginResponseDTO(token);
-
+            return new LoginResponseDTO(token, null, null);
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao realizar login: " + e.getMessage());
+            return new LoginResponseDTO(null, "Erro ao realizar login", e.getMessage());
         }
     }
 
     @PostMapping("/cadastrar")
-    public LoginResponseDTO cadastrar(@RequestBody UserRegisterDTO input) {
-        var user = authenticationService.cadastrar(input);
-        var token = jwtService.generateToken(user);
-        return new LoginResponseDTO(token);
+    public LoginResponseDTO cadastrar(@RequestBody BodyCriptografadoDTO input) {
+
+        try {
+            String encryptedBody = input.encryptedBody();
+
+            if (!Base64.isBase64(encryptedBody)) {
+                throw new IllegalArgumentException("O corpo da requisição não está codificado em Base64.");
+            }
+
+            String decryptedBody = AESUtil.decrypt(encryptedBody, aesKey, aesIv);
+            UserRegisterDTO inputRegister = new ObjectMapper().readValue(decryptedBody, UserRegisterDTO.class);
+            var user = authenticationService.cadastrar(inputRegister);
+            var token = jwtService.generateToken(user);
+            return new LoginResponseDTO(token, null, null);
+
+        } catch (Exception e) {
+            return new LoginResponseDTO(null, "Erro ao realizar cadastro", e.getMessage());
+        }
+
     }
 
 }
