@@ -3,6 +3,8 @@ import userDefault from "../../assets/user-3296.svg";
 import boxicons from "boxicons";
 import ThemeSwitcher from "../ThemeSwitcher/ThemeSwitcher"
 import useDarkMode from '../../utils/useDarkMode';
+import { jwtDecode } from "jwt-decode";
+import { doRequest } from "../../utils/doRequest";
 
 import {
   Dropdown,
@@ -21,11 +23,15 @@ import { useState,useEffect } from "react";
 const Header = () => {
     const isDarkMode = useDarkMode();
     const [logged, setLogged] = useState(false);
+    const [nome,setNome] = useState('');
+
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if(token){
             setLogged(true);
+            const { sub } = jwtDecode(token);
+            setNome(sub);
         }
     }, []);
 
@@ -33,7 +39,7 @@ const Header = () => {
 
 
   return (
-    <header className="site-header w-screen h-12 shadow-md flex flex-row justify-between items-center p-
+    <header className="site-header h-12 shadow-md flex flex-row justify-between items-center p-
       xl:h-16
       dark:bg-gray-800
     ">
@@ -63,7 +69,9 @@ const Header = () => {
                         </DropdownTrigger>
                         <DropdownMenu aria-label="Profile Actions" variant="flat">
                             
-                            <DropdownItem key='info'>
+                            <DropdownItem 
+                              onClick={() => navigate('/login')}
+                            key='info'>
                                 <div className="dropdown-item-no-user flex flex-row justify-center">
                                     <p className="w-48 text-center text-green-800 font-bold
                                         dark:text-white
@@ -98,23 +106,16 @@ const Header = () => {
                     isBordered
                     as="button"
                     className="transition-transform"
-                    src={userDefault}
                   />
                 </DropdownTrigger>
                 <DropdownMenu aria-label="Profile Actions" variant="flat">
-                  <DropdownItem key="profile" className="h-14 gap-2">
-                    <p className="font-semibold">Signed in as</p>
-                    <p className="font-semibold">zoey@example.com</p>
+                  <DropdownItem
+                              onClick={() => navigate('/home')}
+                              key="profile" className="h-14 gap-2">
+                    <p className="font-semibold">Logado com o email:</p>
+                    <p className="font-semibold">{nome}</p>
                   </DropdownItem>
-                  <DropdownItem key="settings">My Settings</DropdownItem>
-                  <DropdownItem key="team_settings">Team Settings</DropdownItem>
-                  <DropdownItem key="analytics">Analytics</DropdownItem>
-                  <DropdownItem key="system">System</DropdownItem>
-                  <DropdownItem key="configurations">Configurations</DropdownItem>
-                  <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
-                  <DropdownItem key="logout" color="danger">
-                    Log Out
-                  </DropdownItem>
+                  <DropdownItem onClick={() => {localStorage.clear();navigate('/');}} key="logout" color="danger">Sair da conta</DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             )}

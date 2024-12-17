@@ -2,7 +2,9 @@ package com.nuhcorre.chupebankbackend.service;
 
 import com.nuhcorre.chupebankbackend.DTO.UserLoginDTO;
 import com.nuhcorre.chupebankbackend.DTO.UserRegisterDTO;
+import com.nuhcorre.chupebankbackend.model.Cartao;
 import com.nuhcorre.chupebankbackend.model.Usuario;
+import com.nuhcorre.chupebankbackend.repository.Conta_BancariaRepository;
 import com.nuhcorre.chupebankbackend.repository.UsuarioRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,14 +21,22 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
 
+    private final Conta_BancariaService contaBancariaService;
+
+    private final CartaoService cartaoService;
+
     public AuthenticationService(
             UsuarioRepository userRepository,
             AuthenticationManager authenticationManager,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            Conta_BancariaService contaBancariaService,
+            CartaoService cartaoService
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.contaBancariaService = contaBancariaService;
+        this.cartaoService = cartaoService;
     }
 
     public Usuario cadastrar(UserRegisterDTO input) {
@@ -38,7 +48,12 @@ public class AuthenticationService {
         user.setCpf(input.cpf());
         user.setTelefone(input.telefone());
 
-        return userRepository.save(user);
+        Usuario savedUser = userRepository.save(user);
+        contaBancariaService.criarConta(savedUser);
+        Cartao cartao = new Cartao();
+        cartao.setContaBancaria(contaBancariaService.buscarConta(savedUser.getId()));
+        cartaoService.criarCartao(cartao);
+        return savedUser;
     }
 
     public Usuario logar(UserLoginDTO input) {

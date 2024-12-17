@@ -26,6 +26,7 @@ import {
   isMobile,
   isTablet,
 } from "react-device-detect";
+import { useNavigate } from "react-router-dom";
 
 const Principal = () => {
   const { ref: ref1, inView: inView1 } = useInView({
@@ -45,11 +46,13 @@ const Principal = () => {
     threshold: 0.1,
   });
 
+  const navigate = useNavigate();
+
   return (
     <>
       <Header />
 
-      <main className="sobre-o-projeto mt-8 w-screen flex flex-col">
+      <main className="sobre-o-projeto mt-8 flex flex-col">
         
         <div className="chupetao-img">
           <img
@@ -80,7 +83,7 @@ const Principal = () => {
                 xl:w-[60%] xl:text-center xl:mx-auto
             ">
               O ChupeBank é um projeto desenvolvido com o intuito de simular um
-              banco digital. O projeto foi desenvolvido por Eduardo Oliveira da Silva visando aprimorar suas habilidades em React e Spring Boot. A criptografia AES (Advanced Encryption Standard) foi utilizada para evitar que pessoas má intencionadas em sua rede tenham acesso a informações sensíveis. Nesse projeto é possível realizar operações bancárias como transferências, saques e depósitos.
+              banco digital. O projeto foi desenvolvido por Eduardo Oliveira da Silva visando aprimorar suas habilidades em React e Spring Boot. Nesse projeto é possível realizar operações bancárias como transferências, saques e depósitos.
             </p>
           </div>
         </div>
@@ -125,12 +128,12 @@ const Principal = () => {
                 <Button1
                     text="Login"
                     color="green"
-                    link="/login"
+                    onClick={() => navigate("/login")}
                 />
                 <Button1
                     text="Cadastre-se"
                     color="green"
-                    link="/cadastro"
+                    onClick={() => navigate("/cadastro")}
                 />
 
             </div>

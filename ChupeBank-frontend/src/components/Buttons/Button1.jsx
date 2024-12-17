@@ -2,12 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
-const Button1 = ({ text, color, link }) => {
+const Button1 = ({ text, color,onClick }) => {
   const navigate = useNavigate();
 
   return (
     <StyledWrapper color={color}>
-      <button onClick={() => navigate(link)}>
+      <button onClick={onClick}>
         {text}
       </button>
     </StyledWrapper>
