@@ -1,5 +1,6 @@
 package com.nuhcorre.chupebankbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,8 @@ public class Cartao {
     private Date dataValidade;
     @Column(name = "limite")
     private Double limite;
-    @Column(name = "senha", length = 4)
-    private Integer senha;
+    @Column(name = "senha")
+    private String senha;
     @Column(name = "bloqueado")
     private Boolean bloqueado;
     @Column(name = "tentativas")
@@ -32,10 +33,11 @@ public class Cartao {
 
     @ManyToOne
     @JoinColumn(name = "conta_id")
+    @JsonBackReference
     private Conta_Bancaria contaBancaria;
 
 
-    public Cartao(UUID id, String numero, Integer cvv, Date dataValidade, Double limite, Integer senha, Boolean bloqueado, Integer tentativas, Conta_Bancaria contaBancaria) {
+    public Cartao(UUID id, String numero, Integer cvv, Date dataValidade, Double limite, String senha, Boolean bloqueado, Integer tentativas, Conta_Bancaria contaBancaria) {
         this.id = id;
         this.numero = numero;
         this.cvv = cvv;
@@ -91,11 +93,11 @@ public class Cartao {
         this.limite = limite;
     }
 
-    public Integer getSenha() {
+    public String getSenha() {
         return senha;
     }
 
-    public void setSenha(Integer senha) {
+    public void setSenha(String senha) {
         this.senha = senha;
     }
 

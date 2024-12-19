@@ -29,7 +29,7 @@ const Login = () => {
             } else if (message === 'Bad credentials') {
                 setError('Email ou senha incorretos');
             }
-        } catch (error) {
+        } catch {
             setError('Erro ao realizar login. Tente novamente.');
         }
     };

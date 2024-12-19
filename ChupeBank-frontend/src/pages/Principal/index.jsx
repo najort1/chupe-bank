@@ -19,6 +19,7 @@ import postgresLogo from "../../assets/postgresql.svg";
 import chupetaoComDinheiro from "../../assets/LOGO.webp";
 import { useInView } from 'react-intersection-observer';
 import Chupetao from "../../assets/CHUPETAO.jpg";
+import styledComponents from "../../assets/styled-components.png";
 
 import {
   BrowserView,
@@ -47,6 +48,16 @@ const Principal = () => {
   });
 
   const navigate = useNavigate();
+
+  const slides = [
+    { name: 'java', img: javaLogo, alt: 'Java', tamanhoMobile: 'h-12', tamanhoTablet: 'h-24', tamanhoDesktop: 'h-12' },
+    { name: 'spring', img: springBootLogo, alt: 'Spring Boot ', tamanhoMobile: 'h-12', tamanhoTablet: 'h-24', tamanhoDesktop: 'h-12' },
+    { name: 'react', img: reactLogo, alt: 'React', tamanhoMobile: 'h-12', tamanhoTablet: 'h-24', tamanhoDesktop: 'h-12' },
+    { name: 'tailwind', img: tailWindLogo, alt: 'Tailwind CSS', tamanhoMobile: 'h-12', tamanhoTablet: 'h-24', tamanhoDesktop: 'h-12' },
+    { name: 'postgres', img: postgresLogo, alt: 'PostgreSQL', tamanhoMobile: 'h-12', tamanhoTablet: 'h-24', tamanhoDesktop: 'h-12' },
+    { name: 'styledComponents', img: styledComponents, alt: 'Styled Components', tamanhoMobile: 'h-12', tamanhoTablet: 'h-24', tamanhoDesktop: 'h-12' },
+
+  ]
 
   return (
     <>
@@ -166,29 +177,17 @@ const Principal = () => {
                   autoplay={{ disableOnInteraction: false, delay: 1000 }}
                   modules={[Autoplay, Parallax]}
                 >
-                  <SwiperSlide>
-                    <img src={javaLogo} alt="Java" className="h-12" />
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <img
-                      src={springBootLogo}
-                      alt="Spring Boot"
-                      className="h-12"
-                    />
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <img src={reactLogo} alt="React" className="h-12" />
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <img
-                      src={tailWindLogo}
-                      alt="Tailwind CSS"
-                      className="h-12"
-                    />
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <img src={postgresLogo} alt="PostgreSQL" className="h-12" />
-                  </SwiperSlide>
+                  {slides.map((slide) => (
+                    <SwiperSlide key={slide.name}>
+                      <img
+                        src={slide.img}
+                        alt={slide.alt}
+                        className={slide.tamanhoMobile}
+                      />
+                    </SwiperSlide>
+                  ))}
+  
+
                 </Swiper>
               </MobileView>
             )}
@@ -201,25 +200,17 @@ const Principal = () => {
                 autoplay={{ disableOnInteraction: false, delay: 1000 }}
                 modules={[Autoplay, Parallax]}
               >
-                <SwiperSlide>
-                  <img src={javaLogo} alt="Java" className="h-24" />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <img
-                    src={springBootLogo}
-                    alt="Spring Boot"
-                    className="h-24"
-                  />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <img src={reactLogo} alt="React" className="h-24" />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <img src={tailWindLogo} alt="Tailwind CSS" className="h-24" />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <img src={postgresLogo} alt="PostgreSQL" className="h-24" />
-                </SwiperSlide>
+
+                {slides.map((slide) => (
+                  <SwiperSlide key={slide.name}>
+                    <img
+                      src={slide.img}
+                      alt={slide.alt}
+                      className={slide.tamanhoTablet}
+                    />
+                  </SwiperSlide>
+                ))}
+
               </Swiper>
             )}
 
@@ -232,25 +223,18 @@ const Principal = () => {
                 autoplay={{ disableOnInteraction: false, delay: 1000 }}
                 modules={[Autoplay, Parallax]}
               >
-                <SwiperSlide>
-                  <img src={javaLogo} alt="Java" className="h-12" />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <img
-                    src={springBootLogo}
-                    alt="Spring Boot"
-                    className="h-12"
-                  />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <img src={reactLogo} alt="React" className="h-12" />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <img src={tailWindLogo} alt="Tailwind CSS" className="h-12" />
-                </SwiperSlide>
-                <SwiperSlide>
-                  <img src={postgresLogo} alt="PostgreSQL" className="h-12" />
-                </SwiperSlide>
+
+                {slides.map((slide) => (
+                  <SwiperSlide key={slide.name}>
+                    <img
+                      src={slide.img}
+                      alt={slide.alt}
+                      className={slide.tamanhoDesktop}
+                    />
+                  </SwiperSlide>
+                ))}
+
+
               </Swiper>
             </BrowserView>
           </div>

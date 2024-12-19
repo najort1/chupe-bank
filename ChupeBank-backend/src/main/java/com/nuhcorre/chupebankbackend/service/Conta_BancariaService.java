@@ -44,8 +44,16 @@ public class Conta_BancariaService {
         return conta_bancariaRepository.findByNumeroConta(numeroConta).orElseThrow();
     }
 
+
     public void depositar(UUID usuarioId, Double valor) {
         conta_bancariaRepository.findByUsuarioId(usuarioId).ifPresent(conta -> {
+
+            if(valor < 0){
+                throw new IllegalArgumentException("Valor inválido");
+            }else if(valor > 10000){
+                throw new IllegalArgumentException("Valor máximo para depósito é de R$ 10.000,00");
+            }
+
             conta.setSaldo(conta.getSaldo() + valor);
             conta_bancariaRepository.save(conta);
             extratoService.registrarTransacao(conta.getId(), "DEPOSITO", valor, conta.getSaldo(), "Depósito de dinheiro");
@@ -54,6 +62,12 @@ public class Conta_BancariaService {
 
     public void sacar(UUID usuarioId, Double valor) {
         conta_bancariaRepository.findByUsuarioId(usuarioId).ifPresent(conta -> {
+            if(valor > conta.getSaldo()) {
+                throw new IllegalArgumentException("Saldo insuficiente");
+            }else if(valor < 0){
+                throw new IllegalArgumentException("Valor inválido");
+            }
+
             conta.setSaldo(conta.getSaldo() - valor);
             conta_bancariaRepository.save(conta);
             extratoService.registrarTransacao(conta.getId(), "SAQUE", valor, conta.getSaldo(), "Saque de dinheiro");
@@ -62,6 +76,23 @@ public class Conta_BancariaService {
 
     public void transferir(UUID usuarioId, TransferirDTO transferirDTO) {
         conta_bancariaRepository.findByUsuarioId(usuarioId).ifPresent(conta -> {
+
+            if(transferirDTO.valor() > conta.getSaldo()) {
+                throw new IllegalArgumentException("Saldo insuficiente");
+            }else if(transferirDTO.valor() < 0){
+                throw new IllegalArgumentException("Valor inválido");
+            }else if(transferirDTO.tipoChave() == TipoChave.CPF && transferirDTO.chave().equals(conta.getUsuario().getCpf())) {
+                throw new IllegalArgumentException("Você não pode transferir para você mesmo");
+            }else if(transferirDTO.tipoChave() == TipoChave.EMAIL && transferirDTO.chave().equals(conta.getUsuario().getEmail())) {
+                throw new IllegalArgumentException("Você não pode transferir para você mesmo");
+            }else if(transferirDTO.tipoChave() == TipoChave.NUMERO_CONTA && transferirDTO.chave().equals(conta.getNumeroConta())) {
+                throw new IllegalArgumentException("Você não pode transferir para você mesmo");
+            }else if(transferirDTO.tipoChave() == TipoChave.CPF && !transferirDTO.chave().matches("[0-9]{11}")) {
+                throw new IllegalArgumentException("CPF inválido");
+            }else if (transferirDTO.tipoChave() == TipoChave.EMAIL && !transferirDTO.chave().contains("@")) {
+                throw new IllegalArgumentException("Email inválido");
+            }
+
             conta.setSaldo(conta.getSaldo() - transferirDTO.valor());
             conta_bancariaRepository.save(conta);
             extratoService.registrarTransacao(conta.getId(), "TRANSFERENCIA", transferirDTO.valor(), conta.getSaldo(), "Transferência de dinheiro para " + transferirDTO.chave());

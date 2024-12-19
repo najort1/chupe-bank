@@ -35,6 +35,13 @@ const Header = () => {
         }
     }, []);
 
+    useEffect(() => {
+        
+
+    }, [logged]);
+
+
+
     const navigate = useNavigate();
 
 
@@ -63,6 +70,7 @@ const Header = () => {
                           <Avatar
                             isBordered
                             as="button"
+                            
                             size="md"
                             className="transition-transform"
                           />
@@ -71,6 +79,7 @@ const Header = () => {
                             
                             <DropdownItem 
                               onClick={() => navigate('/login')}
+                              textValue="Faça login ou cadastre-se"
                             key='info'>
                                 <div className="dropdown-item-no-user flex flex-row justify-center">
                                     <p className="w-48 text-center text-green-800 font-bold
@@ -81,6 +90,7 @@ const Header = () => {
 
                           <DropdownItem 
                             onClick={() => navigate('/login')}
+                            textValue="Entrar"
                           key="settings">
                             <div className="dropdown-item-no-user flex flex-row items-center w-full cursor-pointer">
                                 {isDarkMode ? <box-icon color='#ffff' name='door-open'></box-icon> : <box-icon name='door-open'></box-icon>}
@@ -89,6 +99,7 @@ const Header = () => {
 
                           </DropdownItem>
                           <DropdownItem 
+                          textValue="Cadastrar-se"
                             onClick={() => navigate('/cadastro')}
                           key="team_settings">
                             <div className="dropdown-item-no-user flex flex-row items-center w-full cursor-pointer">
@@ -110,12 +121,15 @@ const Header = () => {
                 </DropdownTrigger>
                 <DropdownMenu aria-label="Profile Actions" variant="flat">
                   <DropdownItem
+                              textValue="Logado com o email:"
                               onClick={() => navigate('/home')}
                               key="profile" className="h-14 gap-2">
                     <p className="font-semibold">Logado com o email:</p>
                     <p className="font-semibold">{nome}</p>
                   </DropdownItem>
-                  <DropdownItem onClick={() => {localStorage.clear();navigate('/');}} key="logout" color="danger">Sair da conta</DropdownItem>
+                  <DropdownItem 
+                    textValue="Home"
+                  onClick={() => {setLogged(false);localStorage.clear();navigate('/');}} key="logout" color="danger">Sair da conta</DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             )}

@@ -1,17 +1,19 @@
 import useDarkMode from "../../utils/useDarkMode";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import InputText from "../../components/Inputs/Input";
 import { useState, useEffect } from "react";
 import { doRequest } from "../../utils/doRequest";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import boxicons from "boxicons";
 import Button1 from "../../components/Buttons/Button1";
 
 import transferirIcon from '../../assets/send-dollars.svg';
 import adicionarIcon from '../../assets/money-withdraw.svg';
 import saqueIcon from '../../assets/savings-dollar.svg';
+
+import ModalAdicionarSaldo from "../../components/Modals/AdicionarSaldo";
+import ModalSacarSaldo from "../../components/Modals/SacarSaldo";
+import ModalTransferirSaldo from "../../components/Modals/TransferirSaldo";
 
 
 const HomePageUser = () => {
@@ -21,9 +23,22 @@ const HomePageUser = () => {
   const [nome, setNome] = useState("");
   const [cartoes, setCartoes] = useState([]);
   const [limiteTotal, setLimiteTotal] = useState(0);
+    const [showModal, setShowModal] = useState({
+        deposito: false,
+        saque: false,
+        transferencia: false,
+    });
 
   const isDarkMode = useDarkMode();
   const navigate = useNavigate();
+
+  const handleModalClose = () => {
+    setShowModal({
+      deposito: false,
+      saque: false,
+      transferencia: false,
+    });
+};
 
   const fetchDadosBancarios = async () => {
     const token = localStorage.getItem("token");
@@ -91,6 +106,26 @@ const HomePageUser = () => {
 
   return (
     <>
+        <ModalAdicionarSaldo 
+        show={showModal.deposito}
+        handleClose={handleModalClose} 
+        saldo={saldo} 
+        setSaldo={setSaldo} />
+
+        <ModalSacarSaldo
+        show={showModal.saque}
+        handleClose={handleModalClose}
+        saldo={saldo}
+        setSaldo={setSaldo}
+        />
+
+        <ModalTransferirSaldo
+        show={showModal.transferencia}
+        handleClose={handleModalClose}
+        saldo={saldo}
+        setSaldo={setSaldo}
+        />
+
       <Header />
 
       <div className="container-apresentacao">
@@ -157,7 +192,7 @@ const HomePageUser = () => {
             <div className="botao-transferir flex flex-row justify-center items-center gap-4 mt-4">
               <Button1
                 text="Transferir"
-                onClick={() => navigate("/transferir")}
+                onClick={() => setShowModal({transferencia: true})}
                 color="green"
               />
             </div>
@@ -174,7 +209,7 @@ const HomePageUser = () => {
             <div className="botao-cartoes flex flex-row justify-center items-center gap-4 mt-4">
               <Button1
                 text="Depositar"
-                onClick={() => navigate("/adicionar-saldo")}
+                onClick={() => setShowModal({deposito: true})}
                 color="green"
               />
             </div>
@@ -191,7 +226,7 @@ const HomePageUser = () => {
             <div className="botao-cartoes flex flex-row justify-center items-center gap-4 mt-4">
               <Button1
                 text="Sacar"
-                onClick={() => navigate("/adicionar-saldo")}
+                onClick={() => setShowModal({saque: true})}
                 color="green"
               />
             </div>
@@ -239,7 +274,11 @@ const HomePageUser = () => {
                 <Button1
                   text="Ver dados"
                   color={"green"}
-                  onClick={() => navigate(`/cartao/${cartao.id}`)}
+                  onClick={() =>
+                    navigate("/cartao", {
+                      state: { cartaoId: cartao.id },
+                    })
+                  }
                 />
               </div>
             </div>

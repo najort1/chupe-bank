@@ -10,26 +10,27 @@ import boxicons from "boxicons";
 import Button1 from "../../components/Buttons/Button1";
 
 
-const ModalAdicionarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
+const ModalSacarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
 
     const [erro, setErro] = useState("");
     const [erroInput, setErroInput] = useState("");
     const [valor, setValor] = useState(0);
     const isDarkMode = useDarkMode();
 
-    const adicionarSaldo = async () => {
+    const sacarSaldo = async () => {
         const token = localStorage.getItem("token");
 
         if (valor <= 0) {
             setErroInput("Valor inválido");
             return;
-        }else if(valor > 10000){
-            setErroInput("Valor máximo de depósito é de R$ 10.000,00");
+        }else if(valor > saldo){
+            setErroInput("Saldo insuficiente");
             return;
         }
 
+
         const response = await doRequest(
-            "http://localhost:8080/api/bank/depositar",
+            "http://localhost:8080/api/bank/sacar",
             "POST",
             {
                 valor: parseFloat(valor),
@@ -41,7 +42,7 @@ const ModalAdicionarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
 
         if (response.status === 200) {
             setSaldo(response.data.saldo);
-            setErro("Depósito realizado com sucesso");
+            setErro("Saque realizado com sucesso");
             setErroInput("");
         } else {
             setErro(response.data.message);
@@ -66,7 +67,7 @@ const ModalAdicionarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
                         <div className="input-modal">
                             <InputText
                                 type="number"
-                                label={"Digite o valor a ser depositado"}
+                                label={"Digite o valor a ser sacado"}
                                 onChange={(e) => setValor(e.target.value)}
                                 value={valor}
                             />
@@ -74,10 +75,10 @@ const ModalAdicionarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
                         </div>
 
                         <div className="button-modal flex justify-center mt-3">
-                            <Button1 text="Depositar" color="#2ba8fb" onClick={adicionarSaldo} />
+                            <Button1 text="Sacar" color="#2ba8fb" onClick={sacarSaldo} />
 
                         </div>
-                        {erro && <p className={`${erro == "Depósito realizado com sucesso" ? ("text-green-600") : ("text-red-600")} text-center font-bold flex justify-center items-center`}>{erro}</p>}
+                        {erro && <p className={`${erro == "Saque realizado com sucesso" ? ("text-green-600") : ("text-red-600")} text-center font-bold flex justify-center items-center`}>{erro}</p>}
 
 
                     </div>
@@ -92,4 +93,4 @@ const ModalAdicionarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
 }
 
 
-export default ModalAdicionarSaldo;
+export default ModalSacarSaldo;
