@@ -79,18 +79,14 @@ const HomePageUser = () => {
     }
   };
 
+  useEffect(() => {
+    if (localStorage.getItem('token') === null) {
+        navigate('/login');
+    }
+}
+, []);
+
   const fetchCartoes = async () => {
-    // [
-    //     {
-    //         "id": "b74997cc-8b53-42ff-8c38-bc12f585a7c3",
-    //         "numeroCartao": "**** **** **** 5739",
-    //         "nomeTitular": "EDUARDO OLIVEIRA DA SILVA",
-    //         "bandeira": "MasterCard",
-    //         "cvv": "***",
-    //         "dataExpiracao": "2027-12-17 16:47:13.365",
-    //         "limite": 1000.0
-    //     }
-    // ]
 
     const token = localStorage.getItem("token");
     const response = await doRequest(

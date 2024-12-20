@@ -56,7 +56,13 @@ const Cartao = () => {
 
     const {cartaoId} = location.state;
     
-
+    useEffect(() => {
+        if (localStorage.getItem('token') === null) {
+            navigate('/login');
+        }
+    }
+    , []);
+    
     const fetchCartao = async () => {
         const token = localStorage.getItem("token");
 

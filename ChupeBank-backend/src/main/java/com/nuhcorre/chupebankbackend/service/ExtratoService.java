@@ -1,15 +1,19 @@
 package com.nuhcorre.chupebankbackend.service;
 
+import com.nuhcorre.chupebankbackend.DTO.responses.ExtratoResponseDTO;
 import com.nuhcorre.chupebankbackend.model.Conta_Bancaria;
 import com.nuhcorre.chupebankbackend.model.Extrato;
 import com.nuhcorre.chupebankbackend.repository.Conta_BancariaRepository;
 import com.nuhcorre.chupebankbackend.repository.ExtratoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ExtratoService {
@@ -47,6 +51,23 @@ public class ExtratoService {
 
     public List<Extrato> buscarExtrato(UUID contaBancariaId) {
         return extratoRepository.findByContaBancariaId(contaBancariaId);
+    }
+
+    public Page<ExtratoResponseDTO> buscarPorUsuario(UUID usuarioId, Pageable pageable, String tipo) {
+        Page<Extrato> extratos;
+        if (tipo != null && !tipo.isEmpty()) {
+            extratos = extratoRepository.findByContaBancariaUsuarioIdAndTipoTransacao(usuarioId, tipo, pageable);
+        } else {
+            extratos = extratoRepository.findByContaBancariaUsuarioId(usuarioId, pageable);
+        }
+        return extratos.map(extrato -> new ExtratoResponseDTO(
+                extrato.getId(),
+                extrato.getTipoTransacao(),
+                extrato.getValor(),
+                extrato.getSaldoAposTransacao(),
+                extrato.getDescricao(),
+                extrato.getDataHora()
+        ));
     }
 
 
