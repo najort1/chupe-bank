@@ -1,21 +1,19 @@
 import useDarkMode from "../../utils/useDarkMode";
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
 import InputText from "../../components/Inputs/Input";
 import { useState, useEffect } from "react";
 import { doRequest } from "../../utils/doRequest";
-import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import boxicons from "boxicons";
 import Button1 from "../../components/Buttons/Button1";
 
 
-const ModalAdicionarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
+const ModalAdicionarSaldo = ({ show, handleClose, saldo, setSaldo, setTransactionId, setDataTransacao,valor,setValor}) => {
+
 
     const [erro, setErro] = useState("");
     const [erroInput, setErroInput] = useState("");
-    const [valor, setValor] = useState(0);
     const isDarkMode = useDarkMode();
+
+
 
     const adicionarSaldo = async () => {
         const token = localStorage.getItem("token");
@@ -42,7 +40,11 @@ const ModalAdicionarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
         if (response.status === 200) {
             setSaldo(response.data.saldo);
             setErro("Depósito realizado com sucesso");
+            setValor(response.data.valor);
+            setTransactionId(response.data.transactionId);
+            setDataTransacao(response.data.dataTransacao);
             setErroInput("");
+            handleClose(true)
         } else {
             setErro(response.data.message);
         }
@@ -54,13 +56,15 @@ const ModalAdicionarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
             {show ? (
                 <div className="modal bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full flex justify-center items-center z-50">
 
-                    <div className="modal-content  p-4 rounded-lg shadow-md w-[80%] h-[30%] dark:bg-gray-800 bg-white
-                        md:w-[40%] md:h-[30%] lg:w-[30%] lg:h-[35%] lg:flex lg:flex-col lg:justify-between
+                    <div className="modal-content  p-4 rounded-lg shadow-md w-[80%] dark:bg-gray-800 bg-white
+                        md:w-[40%] lg:w-[30%] lg:flex lg:flex-col lg:justify-between
                     ">
 
                         <div className="fechar-modal flex justify-end mb-4">
                             
-                            <button onClick={handleClose}>{isDarkMode ? (<box-icon name='window-close' color='#ffff' ></box-icon>) : (<box-icon name='window-close'   ></box-icon>)}</button>
+                            <button onClick={
+                                () => {handleClose(false)}
+                            }>{isDarkMode ? (<box-icon name='window-close' color='#ffff' ></box-icon>) : (<box-icon name='window-close'   ></box-icon>)}</button>
                         </div>
 
                         <div className="input-modal">

@@ -1,6 +1,7 @@
 package com.nuhcorre.chupebankbackend.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -78,18 +79,23 @@ public class Usuario implements UserDetails {
     private UUID id;
 
     @Column(name = "nome")
+    @NotEmpty
     private String nome;
 
     @Column(name = "email", unique = true, nullable = false)
+    @NotEmpty
     private String email;
 
     @Column(name = "senha")
+    @NotEmpty
     private String senha;
 
     @Column(name = "cpf", unique = true, nullable = true)
+    @NotEmpty
     private String cpf;
 
     @Column(name = "telefone", unique = true, nullable = false)
+    @NotEmpty
     private String telefone;
 
     @CreationTimestamp

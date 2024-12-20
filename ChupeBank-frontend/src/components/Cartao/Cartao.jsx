@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const Card = ({ number, validThru, date, name,cvv }) => {
   return (
     <StyledWrapper>
-      <div className="visa-card">
+      <div className="visa-card ">
         <div className="logoContainer">
           <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width={23} height={23} viewBox="0 0 48 48" className="svgLogo">
             <path fill="#ff9800" d="M32 10A14 14 0 1 0 32 38A14 14 0 1 0 32 10Z" />

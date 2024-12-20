@@ -114,4 +114,31 @@ public class CartaoController {
             return ResponseEntity.badRequest().body("Erro ao descriptografar senha");
         }
     }
+
+
+    @PostMapping("/trocar-senha")
+    public ResponseEntity<?> trocarSenha(@RequestBody ConsultaCartaoDTO consultaCartaoDTO) {
+        Usuario usuario = obterUsuarioAutenticado();
+        if (usuario == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Cartao cartao = cartaoService.capturarCartaoId(consultaCartaoDTO.id());
+        if (!cartao.getContaBancaria().getUsuario().getId().equals(usuario.getId())) {
+            return ResponseEntity.badRequest().body("Cartão não pertence ao usuário");
+        }
+
+        try {
+            var senhaDescriptografada = AESUtil.decrypt(consultaCartaoDTO.senha(), aesKey, aesIv);
+            if (!passwordEncoder.matches(senhaDescriptografada, cartao.getSenha())) {
+                return ResponseEntity.badRequest().body("Senha incorreta");
+            }
+
+            cartaoService.alterarSenha(cartao.getContaBancaria().getNumeroConta(), consultaCartaoDTO.novaSenha());
+            return ResponseEntity.ok("Senha alterada com sucesso");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro ao descriptografar senha");
+        }
+    }
+
 }

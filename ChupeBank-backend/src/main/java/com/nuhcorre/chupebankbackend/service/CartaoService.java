@@ -63,6 +63,15 @@ public class CartaoService {
         return cartaoRepository.findAllByContaBancariaNumeroConta(numeroConta);
     }
 
+    public void deletarCartoesPorUsuarioId(UUID usuarioId) {
+        List<Cartao> cartoes = cartaoRepository.findByContaBancariaUsuarioId(usuarioId);
+        cartaoRepository.deleteAll(cartoes);
+    }
+
+    public void deletarCartao(UUID id) {
+        cartaoRepository.deleteById(id);
+    }
+
     public void criarCartao(Cartao cartao) {
         Cartao newCard = new Cartao();
         newCard.setId(UUID.randomUUID()); // Define o UUID manualmente

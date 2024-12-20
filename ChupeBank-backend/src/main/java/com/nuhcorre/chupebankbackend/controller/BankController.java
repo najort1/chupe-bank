@@ -3,9 +3,11 @@ package com.nuhcorre.chupebankbackend.controller;
 import com.nuhcorre.chupebankbackend.DTO.TransferirDTO;
 import com.nuhcorre.chupebankbackend.DTO.ValorDTO;
 import com.nuhcorre.chupebankbackend.DTO.responses.AccountInfoDTO;
+import com.nuhcorre.chupebankbackend.DTO.responses.BankActionsDTO;
 import com.nuhcorre.chupebankbackend.model.Usuario;
 import com.nuhcorre.chupebankbackend.service.CartaoService;
 import com.nuhcorre.chupebankbackend.service.Conta_BancariaService;
+import com.nuhcorre.chupebankbackend.service.ExtratoService;
 import com.nuhcorre.chupebankbackend.util.AESUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,12 +30,13 @@ public class BankController {
     private final Conta_BancariaService conta_BancariaService;
     private final PasswordEncoder passwordEncoder;
     private final CartaoService cartaoService;
+    private final ExtratoService extratoService;
 
-    public BankController(Conta_BancariaService conta_BancariaService, PasswordEncoder passwordEncoder, CartaoService cartaoService) {
+    public BankController(Conta_BancariaService conta_BancariaService, PasswordEncoder passwordEncoder, CartaoService cartaoService, ExtratoService extratoService) {
         this.conta_BancariaService = conta_BancariaService;
         this.passwordEncoder = passwordEncoder;
         this.cartaoService = cartaoService;
-
+        this.extratoService = extratoService;
     }
 
     @Autowired
@@ -63,7 +66,14 @@ public class BankController {
         if (principal instanceof Usuario usuario) {
             conta_BancariaService.depositar(usuario.getId(), valor.valor());
             var conta = conta_BancariaService.buscarConta(usuario.getId());
-            return ResponseEntity.ok(new AccountInfoDTO(conta.getSaldo(), conta.getNumeroConta(), conta.getAgencia()));
+            var ultimoExtrato = extratoService.buscarUltimoExtrato(conta.getId());
+            return ResponseEntity.ok(new BankActionsDTO(
+                    ultimoExtrato.getId(),
+                    conta.getSaldo(),
+                    ultimoExtrato.getDataHora(),
+                    ultimoExtrato.getValor(),
+                    ultimoExtrato.getSaldoAposTransacao()
+            ));
         }
         return ResponseEntity.badRequest().build();
     }
@@ -76,7 +86,15 @@ public class BankController {
         if (principal instanceof Usuario usuario) {
             conta_BancariaService.sacar(usuario.getId(), valor.valor());
             var conta = conta_BancariaService.buscarConta(usuario.getId());
-            return ResponseEntity.ok(new AccountInfoDTO(conta.getSaldo(), conta.getNumeroConta(), conta.getAgencia()));
+            var ultimoExtrato = extratoService.buscarUltimoExtrato(conta.getId());
+            return ResponseEntity.ok(new BankActionsDTO(
+                    ultimoExtrato.getId(),
+                    conta.getSaldo(),
+                    ultimoExtrato.getDataHora(),
+                    ultimoExtrato.getValor(),
+                    ultimoExtrato.getSaldoAposTransacao()
+            ));
+
         }
         return ResponseEntity.badRequest().build();
     }
@@ -110,12 +128,17 @@ public class BankController {
             }
 
 
-
-
-
             conta_BancariaService.transferir(usuario.getId(), transferirDTO);
             var conta = conta_BancariaService.buscarConta(usuario.getId());
-            return ResponseEntity.ok(new AccountInfoDTO(conta.getSaldo(), conta.getNumeroConta(), conta.getAgencia()));
+            var ultimoExtrato = extratoService.buscarUltimoExtrato(conta.getId());
+            return ResponseEntity.ok(new BankActionsDTO(
+                    ultimoExtrato.getId(),
+                    conta.getSaldo(),
+                    ultimoExtrato.getDataHora(),
+                    ultimoExtrato.getValor(),
+                    ultimoExtrato.getSaldoAposTransacao()
+            ));
+
         }
         return ResponseEntity.badRequest().build();
     }

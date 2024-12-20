@@ -7,38 +7,55 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Button1 from "../../components/Buttons/Button1";
 
-import transferirIcon from '../../assets/send-dollars.svg';
-import adicionarIcon from '../../assets/money-withdraw.svg';
-import saqueIcon from '../../assets/savings-dollar.svg';
+import transferirIcon from "../../assets/send-dollars.svg";
+import adicionarIcon from "../../assets/money-withdraw.svg";
+import saqueIcon from "../../assets/savings-dollar.svg";
+import deleteIcon from "../../assets/trash.svg";
 
 import ModalAdicionarSaldo from "../../components/Modals/AdicionarSaldo";
 import ModalSacarSaldo from "../../components/Modals/SacarSaldo";
 import ModalTransferirSaldo from "../../components/Modals/TransferirSaldo";
+import ModalDadosTransacao from "../../components/Modals/DadosTransacao";
 
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@nextui-org/react";
 
 const HomePageUser = () => {
   const [saldo, setSaldo] = useState(0);
   const [agencia, setAgencia] = useState("");
   const [conta, setConta] = useState("");
   const [nome, setNome] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [dataTransacao, setDataTransacao] = useState("");
+  const [valor, setValor] = useState(0);
   const [cartoes, setCartoes] = useState([]);
   const [limiteTotal, setLimiteTotal] = useState(0);
-    const [showModal, setShowModal] = useState({
-        deposito: false,
-        saque: false,
-        transferencia: false,
-    });
+  const [showModal, setShowModal] = useState({
+    deposito: false,
+    saque: false,
+    transferencia: false,
+    dadosTransacao: false,
+  });
 
   const isDarkMode = useDarkMode();
   const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const handleModalClose = () => {
+  const handleModalClose = (sucesso) => {
     setShowModal({
       deposito: false,
       saque: false,
       transferencia: false,
+      dadosTransacao: sucesso,
     });
-};
+  };
 
   const fetchDadosBancarios = async () => {
     const token = localStorage.getItem("token");
@@ -97,6 +114,26 @@ const HomePageUser = () => {
     }
   };
 
+  const handleDeleteAccount = async () => { 
+    const token = localStorage.getItem("token");
+    const response = await doRequest(
+      "http://localhost:8080/usuario/delete",
+      "DELETE",
+      null,
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+
+    if (response.status === 200) {
+      localStorage.removeItem("token");
+      navigate("/login");
+    } else {
+      console.log("Erro ao deletar conta");
+    }
+  };
+
+
   useEffect(() => {
     fetchDadosBancarios();
     fetchCartoes();
@@ -105,26 +142,74 @@ const HomePageUser = () => {
   }, []);
 
   return (
-    <>
-        <ModalAdicionarSaldo 
+    <div className="min-h-screen">
+      <ModalAdicionarSaldo
         show={showModal.deposito}
-        handleClose={handleModalClose} 
-        saldo={saldo} 
-        setSaldo={setSaldo} />
+        handleClose={handleModalClose}
+        saldo={saldo}
+        setSaldo={setSaldo}
+        setDataTransacao={setDataTransacao}
+        setTransactionId={setTransactionId}
+        setValor={setValor}
+        valor={valor}
+      />
 
-        <ModalSacarSaldo
+      <Modal backdrop={"blur"} isOpen={isOpen} onClose={onClose} placement="center">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Tem certeza que deseja deletar sua conta?
+              </ModalHeader>
+              <ModalBody>
+                <p>
+                  Ao deletar sua conta, você perderá todo o seu saldo e cartões juntamente com seus dados bancários e historico de transações. Essa ação é irreversível.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={handleDeleteAccount}>
+                  Continuar
+                </Button>
+                <Button color="primary" onPress={onClose}>
+                  Cancelar
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      <ModalSacarSaldo
         show={showModal.saque}
         handleClose={handleModalClose}
         saldo={saldo}
         setSaldo={setSaldo}
-        />
+        setDataTransacao={setDataTransacao}
+        setTransactionId={setTransactionId}
+        setValor={setValor}
+        valor={valor}
+      />
 
-        <ModalTransferirSaldo
+      <ModalTransferirSaldo
         show={showModal.transferencia}
         handleClose={handleModalClose}
         saldo={saldo}
         setSaldo={setSaldo}
-        />
+        setDataTransacao={setDataTransacao}
+        setTransactionId={setTransactionId}
+        setValor={setValor}
+        valor={valor}
+      />
+
+      <ModalDadosTransacao
+        show={showModal.dadosTransacao}
+        handleClose={handleModalClose}
+        saldo={saldo}
+        setSaldo={setSaldo}
+        transactionId={transactionId}
+        dataTransacao={dataTransacao}
+        valor={valor}
+      />
 
       <Header />
 
@@ -178,64 +263,89 @@ const HomePageUser = () => {
           />
         </div>
       </div>
-          <h1 className="titulo text-2xl text-center">Ações do usuário</h1>
-      <div className="acoes-usuario flex flex-col gap-4 overflow-y-auto">
-        <div className="container-acoes flex flex-row gap-2 justify-center items-center">
-          <div className="acao flex flex-col p-4 my-4 rounded-md dark:bg-gray-800 shadow-xl w-1/2">
-            <div className="titulo-e-simbolo flex flex-row gap-2 justify-center">
-              {isDarkMode ? (
-                <img src={transferirIcon} alt="Transferir" className="invert w-8 h-8" />
-              ) : (
-                <img src={transferirIcon} alt="Transferir" className="h-8 w-8"/>
-              )}
-            </div>
-            <div className="botao-transferir flex flex-row justify-center items-center gap-4 mt-4">
-              <Button1
-                text="Transferir"
-                onClick={() => setShowModal({transferencia: true})}
-                color="green"
-              />
-            </div>
-          </div>
+      <h1 className="titulo text-2xl text-center">Ações do usuário</h1>
 
-          <div className="acao flex flex-col p-4 my-4 rounded-md dark:bg-gray-800 shadow-xl w-1/2">
-            <div className="titulo-e-simbolo flex flex-row gap-2 justify-center">
-              {isDarkMode ? (
-                <img src={adicionarIcon} alt="Adicionar saldo" className="invert w-8 h-8" />
-              ) : (
-                <img src={adicionarIcon} alt="Adicionar saldo" className="w-8 h-8"/>
-              )}
-            </div>
-            <div className="botao-cartoes flex flex-row justify-center items-center gap-4 mt-4">
-              <Button1
-                text="Depositar"
-                onClick={() => setShowModal({deposito: true})}
-                color="green"
+      <div className="container-acoes flex flex-row gap-2 overflow-auto">
+        <div className="acao flex flex-col p-4 my-4 rounded-md dark:bg-gray-800 shadow-xl w-1/2">
+          <div className="titulo-e-simbolo flex flex-row gap-2 justify-center">
+            {isDarkMode ? (
+              <img
+                src={transferirIcon}
+                alt="Transferir"
+                className="invert w-8 h-8"
               />
-            </div>
+            ) : (
+              <img src={transferirIcon} alt="Transferir" className="h-8 w-8" />
+            )}
           </div>
-
-          <div className="acao flex flex-col p-4 my-4 rounded-md dark:bg-gray-800 shadow-xl w-1/2">
-            <div className="titulo-e-simbolo flex flex-row gap-2 justify-center">
-                {isDarkMode ? (
-                    <img src={saqueIcon} alt="Sacar" className="invert w-8 h-8" />
-                ) : (
-                    <img src={saqueIcon} alt="Sacar" className="w-8 h-8"/>
-                )}
-            </div>
-            <div className="botao-cartoes flex flex-row justify-center items-center gap-4 mt-4">
-              <Button1
-                text="Sacar"
-                onClick={() => setShowModal({saque: true})}
-                color="green"
-              />
-            </div>
+          <div className="botao-transferir flex flex-row justify-center items-center gap-4 mt-4">
+            <Button1
+              text="Transferir"
+              onClick={() => setShowModal({ transferencia: true })}
+              color="green"
+            />
           </div>
-
         </div>
 
+        <div className="acao flex flex-col p-4 my-4 rounded-md dark:bg-gray-800 shadow-xl w-1/2">
+          <div className="titulo-e-simbolo flex flex-row gap-2 justify-center">
+            {isDarkMode ? (
+              <img
+                src={adicionarIcon}
+                alt="Adicionar saldo"
+                className="invert w-8 h-8"
+              />
+            ) : (
+              <img
+                src={adicionarIcon}
+                alt="Adicionar saldo"
+                className="w-8 h-8"
+              />
+            )}
+          </div>
+          <div className="botao-cartoes flex flex-row justify-center items-center gap-4 mt-4">
+            <Button1
+              text="Depositar"
+              onClick={() => setShowModal({ deposito: true })}
+              color="green"
+            />
+          </div>
+        </div>
 
+        <div className="acao flex flex-col p-4 my-4 rounded-md dark:bg-gray-800 shadow-xl w-1/2">
+          <div className="titulo-e-simbolo flex flex-row gap-2 justify-center">
+            {isDarkMode ? (
+              <img src={saqueIcon} alt="Sacar" className="invert w-8 h-8" />
+            ) : (
+              <img src={saqueIcon} alt="Sacar" className="w-8 h-8" />
+            )}
+          </div>
+          <div className="botao-cartoes flex flex-row justify-center items-center gap-4 mt-4">
+            <Button1
+              text="Sacar"
+              onClick={() => setShowModal({ saque: true })}
+              color="green"
+            />
+          </div>
+        </div>
 
+        <div className="acao flex flex-col p-4 my-4 rounded-md dark:bg-gray-800 shadow-xl w-1/2">
+          <div className="titulo-e-simbolo flex flex-row gap-2 justify-center">
+            {isDarkMode ? (
+              <img src={deleteIcon} alt="Sacar" className="invert w-8 h-8" />
+            ) : (
+              <img src={deleteIcon} alt="Sacar" className="w-8 h-8" />
+            )}
+          </div>
+          <div className="botao-cartoes flex flex-row justify-center items-center gap-4 mt-4">
+            <Button1
+              text="Deletar"
+              onClick={onOpen}
+              color="#9e1919"
+              hoverColor="#ff0000"
+            />
+          </div>
+        </div>
       </div>
 
       <div
@@ -287,7 +397,7 @@ const HomePageUser = () => {
       </div>
 
       <Footer />
-    </>
+    </div>
   );
 };
 

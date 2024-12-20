@@ -3,6 +3,7 @@ package com.nuhcorre.chupebankbackend.service;
 import com.nuhcorre.chupebankbackend.DTO.UserLoginDTO;
 import com.nuhcorre.chupebankbackend.DTO.UserRegisterDTO;
 import com.nuhcorre.chupebankbackend.model.Cartao;
+import com.nuhcorre.chupebankbackend.model.Conta_Bancaria;
 import com.nuhcorre.chupebankbackend.model.Usuario;
 import com.nuhcorre.chupebankbackend.repository.Conta_BancariaRepository;
 import com.nuhcorre.chupebankbackend.repository.UsuarioRepository;
@@ -10,7 +11,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.nuhcorre.chupebankbackend.util.ValidaCPF;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,21 +29,40 @@ public class AuthenticationService {
 
     private final CartaoService cartaoService;
 
+    private final ExtratoService extratoService;
+
     public AuthenticationService(
             UsuarioRepository userRepository,
             AuthenticationManager authenticationManager,
             PasswordEncoder passwordEncoder,
             Conta_BancariaService contaBancariaService,
-            CartaoService cartaoService
+            CartaoService cartaoService,
+            ExtratoService extratoService
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.contaBancariaService = contaBancariaService;
         this.cartaoService = cartaoService;
+        this.extratoService = extratoService;
     }
 
     public Usuario cadastrar(UserRegisterDTO input) {
+
+        if(!ValidaCPF.isCPF(input.cpf())) {
+            throw new IllegalArgumentException("CPF inválido");
+        }else if(!input.email().contains("@") || !input.email().contains(".")){
+            throw new IllegalArgumentException("Email inválido");
+        }else if(input.senha().length() < 6){
+            throw new IllegalArgumentException("Senha inválida");
+        }else if (userRepository.existsByEmail(input.email())) {
+            throw new IllegalArgumentException("Email já cadastrado");
+        }else if (userRepository.existsByCpf(input.cpf())) {
+            throw new IllegalArgumentException("CPF já cadastrado");
+        }else if (userRepository.existsByTelefone(input.telefone())) {
+            throw new IllegalArgumentException("Telefone já cadastrado");
+        }
+
         Usuario user = new Usuario();
         user.setId(UUID.randomUUID());
         user.setNome(input.nome());
@@ -48,11 +71,17 @@ public class AuthenticationService {
         user.setCpf(input.cpf());
         user.setTelefone(input.telefone());
 
+        // Salvar o usuário antes de criar outras entidades relacionadas
         Usuario savedUser = userRepository.save(user);
-        contaBancariaService.criarConta(savedUser);
+
+        // Criar e salvar a conta bancária
+        Conta_Bancaria contaBancaria = contaBancariaService.criarConta(savedUser);
+
+        // Criar e salvar o cartão
         Cartao cartao = new Cartao();
-        cartao.setContaBancaria(contaBancariaService.buscarConta(savedUser.getId()));
+        cartao.setContaBancaria(contaBancaria);
         cartaoService.criarCartao(cartao);
+
         return savedUser;
     }
 
@@ -61,4 +90,9 @@ public class AuthenticationService {
         var auth = authenticationManager.authenticate(authentication);
         return userRepository.findByEmail(input.email()).orElseThrow();
     }
+
+    public void deletarUsuario(UUID usuarioId) {
+        userRepository.deleteById(usuarioId);
+    }
+
 }

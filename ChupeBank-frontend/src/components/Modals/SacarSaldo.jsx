@@ -10,13 +10,12 @@ import boxicons from "boxicons";
 import Button1 from "../../components/Buttons/Button1";
 
 
-const ModalSacarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
+const ModalSacarSaldo = ({ show, handleClose, saldo, setSaldo, setTransactionId, setDataTransacao,valor,setValor}) => {
+
 
     const [erro, setErro] = useState("");
     const [erroInput, setErroInput] = useState("");
-    const [valor, setValor] = useState(0);
     const isDarkMode = useDarkMode();
-
     const sacarSaldo = async () => {
         const token = localStorage.getItem("token");
 
@@ -42,8 +41,12 @@ const ModalSacarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
 
         if (response.status === 200) {
             setSaldo(response.data.saldo);
+            setTransactionId(response.data.transactionId);
+            setValor(response.data.valor);
+            setDataTransacao(response.data.dataTransacao);
             setErro("Saque realizado com sucesso");
             setErroInput("");
+            handleClose(true)
         } else {
             setErro(response.data.message);
         }
@@ -55,13 +58,15 @@ const ModalSacarSaldo = ({ show, handleClose,saldo,setSaldo }) => {
             {show ? (
                 <div className="modal bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full flex justify-center items-center z-50">
 
-                    <div className="modal-content  p-4 rounded-lg shadow-md w-[80%] h-[30%] dark:bg-gray-800 bg-white
-                        md:w-[40%] md:h-[30%] lg:w-[30%] lg:h-[35%] lg:flex lg:flex-col lg:justify-between
+                    <div className="modal-content  p-4 rounded-lg shadow-md w-[80%] dark:bg-gray-800 bg-white
+                        md:w-[40%] lg:w-[30%] lg:flex lg:flex-col lg:justify-between
                     ">
 
                         <div className="fechar-modal flex justify-end mb-4">
                             
-                            <button onClick={handleClose}>{isDarkMode ? (<box-icon name='window-close' color='#ffff' ></box-icon>) : (<box-icon name='window-close'   ></box-icon>)}</button>
+                            <button onClick={
+                                () => handleClose(false)
+                            }>{isDarkMode ? (<box-icon name='window-close' color='#ffff' ></box-icon>) : (<box-icon name='window-close'   ></box-icon>)}</button>
                         </div>
 
                         <div className="input-modal">

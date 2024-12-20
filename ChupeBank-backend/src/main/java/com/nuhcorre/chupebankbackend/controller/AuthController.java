@@ -5,6 +5,7 @@ import com.nuhcorre.chupebankbackend.DTO.BodyCriptografadoDTO;
 import com.nuhcorre.chupebankbackend.DTO.UserLoginDTO;
 import com.nuhcorre.chupebankbackend.DTO.UserRegisterDTO;
 import com.nuhcorre.chupebankbackend.DTO.responses.LoginResponseDTO;
+import com.nuhcorre.chupebankbackend.model.Usuario;
 import com.nuhcorre.chupebankbackend.service.AuthenticationService;
 import com.nuhcorre.chupebankbackend.service.Conta_BancariaService;
 import com.nuhcorre.chupebankbackend.service.JwtService;
@@ -12,10 +13,14 @@ import com.nuhcorre.chupebankbackend.util.AESUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.UUID;
 
 @RequestMapping("/auth")
 @RestController
@@ -39,6 +44,7 @@ public class AuthController {
         this.objectMapper = objectMapper;
     }
 
+
     @PostMapping("/login")
     public LoginResponseDTO login(@RequestBody BodyCriptografadoDTO input) {
         return processRequest(input, true);
@@ -48,6 +54,7 @@ public class AuthController {
     public LoginResponseDTO cadastrar(@RequestBody BodyCriptografadoDTO input) {
         return processRequest(input, false);
     }
+
 
     private LoginResponseDTO processRequest(BodyCriptografadoDTO input, boolean isLogin) {
         try {

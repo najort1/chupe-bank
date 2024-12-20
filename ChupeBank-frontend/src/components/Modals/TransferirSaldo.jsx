@@ -5,19 +5,17 @@ import { doRequest } from "../../utils/doRequest";
 import { encryptAES } from "../../utils/AesUtil";
 import Button1 from "../../components/Buttons/Button1";
 
-const ModalTransferirSaldo = ({ show, handleClose, saldo, setSaldo }) => {
+const ModalTransferirSaldo = ({ show, handleClose, saldo, setSaldo, setTransactionId, setDataTransacao,valor,setValor}) => {
   const [erro, setErro] = useState("");
   const [erroInput, setErroInput] = useState({
     erroValor: "",
     erroChave: "",
     erroSenha: "",
   });
-  const [valor, setValor] = useState(1);
   const [chave, setChave] = useState("");
   const [senha, setSenha] = useState("");
   const [tipoChave, setTipoChave] = useState("CPF");
   const isDarkMode = useDarkMode();
-
   const transferirSaldo = async () => {
     const token = localStorage.getItem("token");
     const regexHex = /^[0-9A-Fa-f]+$/;
@@ -53,8 +51,13 @@ const ModalTransferirSaldo = ({ show, handleClose, saldo, setSaldo }) => {
 
     if (response.status === 200) {
       setSaldo(response.data.saldo);
+      setTransactionId(response.data.transactionId);
+      setDataTransacao(response.data.dataTransacao);
+      setValor(response.data.valor);
       setErro("Transferência realizada com sucesso");
       setErroInput({ erroValor: "", erroChave: "", erroSenha: "" });
+      handleClose(true)
+
     }else if(respostaString.includes('Você não pode transferir para você mesmo')){
         setErro("Você não pode transferir para você mesmo");
         setErroInput({ erroValor: "", erroChave: "", erroSenha: "" });
@@ -114,12 +117,12 @@ const ModalTransferirSaldo = ({ show, handleClose, saldo, setSaldo }) => {
       {show ? (
         <div className="modal bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full flex justify-center items-center z-50">
           <div
-            className="modal-content  p-4 rounded-lg shadow-md w-[80%] h-[50%] dark:bg-gray-800 bg-white
-                        md:w-[50%] md:h-[45%] lg:w-[30%] lg:h-[50%] lg:flex lg:flex-col lg:justify-between
+            className="modal-content  p-4 rounded-lg shadow-md w-[80%] dark:bg-gray-800 bg-white
+                        md:w-[50%] lg:w-[30%] lg:flex lg:flex-col lg:justify-between
                     "
           >
             <div className="fechar-modal flex justify-end mb-4">
-              <button onClick={handleClose}>
+              <button onClick={() => handleClose(false)}>
                 {isDarkMode ? (
                   <box-icon name="window-close" color="#ffff"></box-icon>
                 ) : (

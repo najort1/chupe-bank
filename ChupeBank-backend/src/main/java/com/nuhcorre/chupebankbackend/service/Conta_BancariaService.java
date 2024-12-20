@@ -36,12 +36,20 @@ public class Conta_BancariaService {
         return conta_bancariaRepository.findByUsuarioId(usuarioId).orElseThrow();
     }
 
+
+
     private String generateAccountNumber() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 10);
     }
 
     public Conta_Bancaria buscarContaPorNumero(String numeroConta) {
         return conta_bancariaRepository.findByNumeroConta(numeroConta).orElseThrow();
+    }
+
+    public void deletarConta(UUID usuarioId) {
+        conta_bancariaRepository.findByUsuarioId(usuarioId).ifPresent(conta -> {
+            conta_bancariaRepository.delete(conta);
+        });
     }
 
 

@@ -9,6 +9,21 @@ import { jwtDecode } from "jwt-decode";
 import ModalError from "../../components/Modals/Error";
 import Card from "../../components/Cartao/Cartao";
 import InputText from "../../components/Inputs/Input";
+import useDarkMode from '../../utils/useDarkMode';
+import {InputOtp, Form} from "@nextui-org/react";
+import eyeShow from '../../assets/eye-password-show.svg';
+import eyeHide from '../../assets/eye-password-hide.svg';
+import {
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button,
+    useDisclosure,
+  } from "@nextui-org/react";
+
+  
 
 const Cartao = () => {
     const [numeroCartao, setNumeroCartao] = useState("");
@@ -17,6 +32,10 @@ const Cartao = () => {
     const [nome, setNome] = useState("");
     const [limite, setLimite] = useState(0);
     const inputRefs = useRef([]);
+
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const isDarkMode = useDarkMode();
 
 
     const [showPassword, setShowPassword] = useState(false);
@@ -45,12 +64,11 @@ const Cartao = () => {
         const nome = jwtDecoded.nome;
         setNome(nome);
 
-        const senhaToString = senha.join("");
 
         const response = await doRequest(
             "http://localhost:8080/api/cartao/id",
             "POST",
-            {id: cartaoId,senha: encryptAES(senhaToString)},
+            {id: cartaoId,senha: encryptAES(senha)},
             {
                 Authorization: `Bearer ${token}`,
             }
@@ -87,47 +105,74 @@ const Cartao = () => {
 
 
     const digiteASenha = () => {
-    
-        const handleInputChange = (e, index) => {
-            const value = e.target.value;
-            setSenha((prevSenha) => {
-                const newSenha = [...prevSenha];
-                newSenha[index] = value;
-                return newSenha;
-            });
-    
-            if (value && index < inputRefs.current.length - 1) {
-                inputRefs.current[index + 1].focus();
-            }
-        };
+
     
         return (
-            <>
+            <div className="min-h-screen">
                 <Header />
-                <div className="w-screen h-screen flex justify-center items-center">
+                <div className="h-screen flex justify-center items-center">
                     <div className="flex flex-col items-center justify-center">
-                        <h1 className="text-2xl font-bold">Digite sua senha de 4</h1>
+                        <h1 className="text-2xl font-bold">Digite sua senha de 4 digitos</h1>
+                        <button className="text-white rounded-lg mt-4 w-12 h-12 flex items-center justify-center" onClick={onOpen}>
+                            {isDarkMode ? (<box-icon name='question-mark' color='#ffff' ></box-icon>) : (<box-icon name='question-mark' ></box-icon>)}
+                        </button>
+
+                        <Modal backdrop={'blur'} isOpen={isOpen} onClose={onClose}>
+                            <ModalContent>
+                            {(onClose) => (
+                                <>
+                                <ModalHeader className="flex flex-col gap-1">Qual é minha senha de 4 digitos?</ModalHeader>
+                                <ModalBody>
+                                    <p>
+                                        A sua senha de 4 digitos é os ultimos 4 digitos do seu cartão principal. Ou seja o cartão que você recebeu ao cadastrar sua conta.
+                                    </p>
+                                    <p>
+                                        Não recomendamos que você continue com essa senha, pois ela é facilmente descoberta. Recomendamos que você altere sua senha o mais rápido possível.
+                                    </p>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="danger" variant="light" onPress={onClose}>
+                                    Fechar
+                                    </Button>
+                                    <Button color="primary" onPress={onClose}>
+                                    Trocar Senha
+                                    </Button>
+                                </ModalFooter>
+                                </>
+                            )}
+                            </ModalContent>
+                        </Modal>
                         <div className="inputs-group-password flex flex-row">
-                            {[0, 1, 2, 3].map((_, index) => (
-                                <input
-                                    key={index}
-                                    ref={(el) => (inputRefs.current[index] = el)}
-                                    type={showPassword ? "text" : "password"}
-                                    maxLength={1}
-                                    className="input-password border-2 border-gray-300 p-2 rounded-lg mt-4 w-12 h-12"
-                                    onChange={(e) => handleInputChange(e, index)}
-                                />
-                            ))}
+                        <InputOtp
+                            isRequired
+                            aria-label="OTP input"
+                            length={4}
+                            name="otp"
+                            placeholder="Digite sua senha"
+                            validationBehavior="native"
+                            size="lg"
+                            type={showPassword ? "text" : "password"}
+                            errorMessage="Senha inválida"
+                            onValueChange={(value) => { setSenha(value); }}
+                        />
                         </div>
                         <div className="botoes-acoes flex flex-row gap-4">
-                            <button className="bg-blue-500 text-white p-2 rounded-lg mt-4 w-1/2 h-12" onClick={() => { fetchCartao(); } }>Confirmar</button>
-                            <button className="bg-blue-500 text-white p-2 rounded-lg mt-4 w-1/2 h-12" onClick={() => setShowPassword(!showPassword)}>Mostrar</button>
-                            <button className="bg-blue-500 text-white p-2 rounded-lg mt-4 w-1/2 h-12" onClick={() => navigate("/home")}>Voltar</button>
+                            <button className="text-white p-2 rounded-lg mt-4 w-1/2 h-12 flex items-center justify-center" onClick={() => { fetchCartao(); } }>
+                                {isDarkMode ? (<box-icon name='paper-plane' color='#ffff' ></box-icon>) : (<box-icon name='paper-plane' ></box-icon>)}
+                            </button>
+                            <button className="text-white p-2 rounded-lg mt-4 w-1/2 h-12 dark:invert flex items-center justify-center" onClick={() => setShowPassword(!showPassword)}>
+                                <img src={showPassword ? eyeHide : eyeShow} alt="Mostrar senha" />
+                            </button>
+
+
+                            <button className="text-white p-2 rounded-lg mt-4 w-1/2 h-12 flex items-center justify-center" onClick={() => navigate("/home")}>
+                                {isDarkMode ? (<box-icon name='arrow-back' color='#ffff' ></box-icon>) : (<box-icon name='arrow-back' ></box-icon>)}
+                            </button>
                         </div>
                     </div>
                 </div>
                 <Footer />
-            </>
+            </div>
         );
     };
 

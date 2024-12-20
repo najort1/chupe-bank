@@ -36,6 +36,15 @@ public class ExtratoService {
         extratoRepository.save(extrato);
     }
 
+    public Extrato buscarUltimoExtrato(UUID contaBancariaId) {
+        return extratoRepository.findFirstByContaBancariaIdOrderByDataHoraDesc(contaBancariaId);
+    }
+
+    public void deletarTodoExtrato(UUID usuarioId) {
+        List<Extrato> extratos = extratoRepository.findByContaBancariaUsuarioId(usuarioId);
+        extratoRepository.deleteAll(extratos);
+    }
+
     public List<Extrato> buscarExtrato(UUID contaBancariaId) {
         return extratoRepository.findByContaBancariaId(contaBancariaId);
     }

@@ -51,7 +51,7 @@ const Header = () => {
       dark:bg-gray-800
     ">
       <div className="logo-container flex flex-row items-center p-2 cursor-pointer"
-        onClick={() => navigate('/')}
+        onClick={ () => !logged ? navigate('/') : navigate('/home')}
       >
         <h1 className="titulo-banco font-bold text-xl
             dark:text-white
