@@ -102,11 +102,14 @@ public class CartaoController {
                 return ResponseEntity.badRequest().body("Senha incorreta você tem " + (5 - tentativasUsuario) + " tentativas restantes antes do bloqueio");
             }
 
+            int cvv = cartao.getCvv();
+            String cvvString = cvv + "";
+
             return ResponseEntity.ok(new CartaoDTO(
                     cartao.getId(),
-                    cartao.getNumero(),
+                    AESUtil.encrypt(cartao.getNumero(), aesKey, aesIv),
                     cartao.getDataValidade(),
-                    cartao.getCvv(),
+                    AESUtil.encrypt(cvvString, aesKey, aesIv),
                     cartao.getLimite(),
                     cartao.getBloqueado()
             ));

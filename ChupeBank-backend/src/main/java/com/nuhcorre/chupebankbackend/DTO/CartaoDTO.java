@@ -7,7 +7,7 @@ public record CartaoDTO(
         UUID id,
         String numero,
         Date dataValidade,
-        Integer cvv,
+        String cvv,
         Double limite,
         Boolean bloqueado
 

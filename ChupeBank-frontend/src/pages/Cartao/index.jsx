@@ -2,6 +2,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useEffect, useState,useRef } from "react";
 import { encryptAES } from "../../utils/AesUtil";
+import { decryptAES } from "../../utils/AesUtil";
 import { doRequest } from "../../utils/doRequest";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -83,8 +84,8 @@ const Cartao = () => {
         const responseString = JSON.stringify(response.data);
 
         if (response.status === 200) {
-            setNumeroCartao(response.data.numero);
-            setCvv(response.data.cvv);
+            setNumeroCartao(decryptAES(response.data.numero));
+            setCvv(decryptAES(response.data.cvv));
             let validade = response.data.dataValidade;
             const partes = validade.split('T')[0].split('-'); // Separar a data do restante e dividir por '-'
             const ano = partes[0];

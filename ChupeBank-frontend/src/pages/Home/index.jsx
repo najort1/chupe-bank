@@ -12,6 +12,8 @@ import adicionarIcon from "../../assets/money-withdraw.svg";
 import saqueIcon from "../../assets/savings-dollar.svg";
 import deleteIcon from "../../assets/trash.svg";
 
+import Chat from "../../components/Chat/Chat";
+
 import ModalAdicionarSaldo from "../../components/Modals/AdicionarSaldo";
 import ModalSacarSaldo from "../../components/Modals/SacarSaldo";
 import ModalTransferirSaldo from "../../components/Modals/TransferirSaldo";
@@ -208,7 +210,7 @@ const HomePageUser = () => {
       />
 
       <Header />
-
+      <Chat />
       <div className="container-apresentacao">
         <h1 className="titulo-apresentacao text-2xl font-bold text-black text-center dark:text-white mt-2">
           Bem vindo, {nome.split(" ")[0]}!

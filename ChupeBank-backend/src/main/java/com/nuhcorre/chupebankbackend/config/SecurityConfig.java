@@ -1,4 +1,5 @@
 package com.nuhcorre.chupebankbackend.config;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -32,6 +33,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                "/websocket/**",
                                 "/produtos/listar/**").permitAll()
                         .anyRequest().authenticated()
                 )

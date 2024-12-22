@@ -88,7 +88,7 @@ const Extrato = () => {
         aria-label="Tabela de extrato com ordenação do lado do cliente"
         classNames={{ table: "min-h-[400px]" }}
         sortDescriptor={sortDescriptor}
-        onSortChange={handleSortChange} // Altere o estado ao clicar
+        onSortChange={handleSortChange}
         bottomContent={
           pages > 0 ? (
             <div className="flex w-full justify-center">
