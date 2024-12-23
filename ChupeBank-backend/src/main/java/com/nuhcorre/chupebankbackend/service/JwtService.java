@@ -1,6 +1,5 @@
 package com.nuhcorre.chupebankbackend.service;
 
-
 import com.nuhcorre.chupebankbackend.model.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -8,6 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +28,28 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String parseJwt(StompHeaderAccessor accessor) {
+        String token = accessor.getFirstNativeHeader("Authorization");
+        String jwt = null;
+        if (token != null) {
+            jwt = token.substring(7);
+        }
+        return jwt;
+    }
+
+    public Boolean validateJwtToken(String authToken) {
+        try {
+            Jwts.parserBuilder().setSigningKey(getSignInKey()).build().parseClaimsJws(authToken);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String getUserNameFromJwtToken(String token) {
+        return extractUsername(token);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
