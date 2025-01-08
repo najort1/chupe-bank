@@ -147,7 +147,7 @@ const ModalTransferirSaldo = ({ show, handleClose, saldo, setSaldo, setTransacti
               <div className="inputs-item-input flex flex-col">
                 <InputText
                   tipo="number"
-                  label={"Digite o valor a ser sacado"}
+                  label={"Digite o valor a ser transferido"}
                   onChange={(e) => setValor(e.target.value)}
                   value={valor}
                 />

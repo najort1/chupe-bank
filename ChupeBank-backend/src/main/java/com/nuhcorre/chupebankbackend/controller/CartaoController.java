@@ -133,14 +133,18 @@ public class CartaoController {
 
         try {
             var senhaDescriptografada = AESUtil.decrypt(consultaCartaoDTO.senha(), aesKey, aesIv);
+            System.out.println("senhaDescriptografada = " + senhaDescriptografada);
+
             if (!passwordEncoder.matches(senhaDescriptografada, cartao.getSenha())) {
                 return ResponseEntity.badRequest().body("Senha incorreta");
             }
 
-            cartaoService.alterarSenha(cartao.getContaBancaria().getNumeroConta(), consultaCartaoDTO.novaSenha());
+            var novaSenhDescriptografada = AESUtil.decrypt(consultaCartaoDTO.novaSenha(), aesKey, aesIv);
+
+            cartaoService.alterarSenha(cartao.getContaBancaria().getNumeroConta(), novaSenhDescriptografada);
             return ResponseEntity.ok("Senha alterada com sucesso");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Erro ao descriptografar senha");
+            return ResponseEntity.badRequest().body("Erro ao descriptografar senha " + e.getMessage());
         }
     }
 

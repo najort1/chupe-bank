@@ -35,30 +35,23 @@ const Chat = () => {
         )
     }
     useEffect(() => {
-        const stompClient = new Client({
-          brokerURL: 'ws://localhost:8080/websocket', // URL do WebSocket do seu backend
-          onConnect: () => {
-            stompClient.subscribe('/topic/public', (message) => {
-              const receivedMessage = JSON.parse(message.body);
-              setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-            });
-    
-            stompClient.publish({
-              destination: '/app/chat.register',
-              body: JSON.stringify({ sender: 'User', type: 'JOIN' }),
-            });
-          },
-          onDisconnect: () => {
-            console.log('Disconnected');
-          },
-        });
-    
-        stompClient.activate();
-        setClient(stompClient);
-    
-        return () => {
-          stompClient.deactivate();
-        };
+      const client = new Client({
+        brokerURL: 'ws://localhost:8080/websocket', // URL do seu WebSocket
+        onConnect: () => {
+          console.log('Conectado ao WebSocket');
+          client.subscribe('/topic/chat', (message) => {
+            console.log('Mensagem recebida:', message.body);
+          });
+        },
+        onStompError: (frame) => {
+          console.error('Erro no STOMP:', frame.headers['message']);
+          console.error('Detalhes:', frame.body);
+        },
+      });
+
+      client.activate();
+      setClient(client);
+      
       }, []);
 
 
