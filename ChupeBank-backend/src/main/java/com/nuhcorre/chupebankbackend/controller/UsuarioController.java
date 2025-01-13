@@ -5,15 +5,15 @@ import com.nuhcorre.chupebankbackend.service.AuthenticationService;
 import com.nuhcorre.chupebankbackend.service.Conta_BancariaService;
 import com.nuhcorre.chupebankbackend.service.CartaoService;
 import com.nuhcorre.chupebankbackend.service.ExtratoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
@@ -53,4 +53,29 @@ public class UsuarioController {
         }
         return ResponseEntity.status(401).body("Usuário não autenticado");
     }
+
+    @PostMapping("/atendente")
+    public ResponseEntity<?> tornarAtendente() {
+        Usuario usuarioAutenticado = obterUsuarioAutenticado();
+        if (usuarioAutenticado != null) {
+            try {
+                authenticationService.transformarAtendente(usuarioAutenticado.getId());
+                return ResponseEntity.ok("Usuário agora é um atendente");
+            } catch (Exception e) {
+                log.error("e: ", e);
+                return ResponseEntity.status(500).body("Erro ao tornar o usuário um atendente: " + e.getMessage());
+            }
+        }
+        return ResponseEntity.status(401).body("Usuário não autenticado");
+    }
+
+    @GetMapping("/valida-atendente")
+    public ResponseEntity<Boolean> validaAtendente() {
+        Usuario usuarioAutenticado = obterUsuarioAutenticado();
+        if (usuarioAutenticado != null) {
+            return ResponseEntity.ok(authenticationService.validaAtendente(usuarioAutenticado.getId()));
+        }
+        return ResponseEntity.status(401).body(false);
+    }
+
 }

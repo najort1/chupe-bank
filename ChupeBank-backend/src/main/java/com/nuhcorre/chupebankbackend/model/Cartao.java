@@ -2,13 +2,14 @@ package com.nuhcorre.chupebankbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 import java.util.UUID;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 @Entity
 @Table(name = "cartao")
 public class Cartao {
@@ -37,91 +38,4 @@ public class Cartao {
     private Conta_Bancaria contaBancaria;
 
 
-    public Cartao(UUID id, String numero, Integer cvv, Date dataValidade, Double limite, String senha, Boolean bloqueado, Integer tentativas, Conta_Bancaria contaBancaria) {
-        this.id = id;
-        this.numero = numero;
-        this.cvv = cvv;
-        this.dataValidade = dataValidade;
-        this.limite = limite;
-        this.senha = senha;
-        this.bloqueado = bloqueado;
-        this.tentativas = tentativas;
-        this.contaBancaria = contaBancaria;
-    }
-
-    public Cartao() {
-
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getNumero() {
-        return numero;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
-
-    public Integer getCvv() {
-        return cvv;
-    }
-
-    public void setCvv(Integer cvv) {
-        this.cvv = cvv;
-    }
-
-    public Date getDataValidade() {
-        return dataValidade;
-    }
-
-    public void setDataValidade(Date dataValidade) {
-        this.dataValidade = dataValidade;
-    }
-
-    public Double getLimite() {
-        return limite;
-    }
-
-    public void setLimite(Double limite) {
-        this.limite = limite;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public Boolean getBloqueado() {
-        return bloqueado;
-    }
-
-    public void setBloqueado(Boolean bloqueado) {
-        this.bloqueado = bloqueado;
-    }
-
-    public Conta_Bancaria getContaBancaria() {
-        return contaBancaria;
-    }
-
-    public void setContaBancaria(Conta_Bancaria contaBancaria) {
-        this.contaBancaria = contaBancaria;
-    }
-
-    public Integer getTentativas() {
-        return tentativas;
-    }
-
-    public void setTentativas(Integer tentativas) {
-        this.tentativas = tentativas;
-    }
 }

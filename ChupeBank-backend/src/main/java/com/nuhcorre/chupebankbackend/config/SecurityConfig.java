@@ -34,6 +34,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/websocket/**",
+                                "/chat-websocket/**",
                                 "/produtos/listar/**").permitAll()
                         .anyRequest().authenticated()
                 )

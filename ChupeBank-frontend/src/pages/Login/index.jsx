@@ -25,13 +25,27 @@ const Login = () => {
 
             if (token) {
                 localStorage.setItem('token', token);
-                navigate('/home');
+                validaAtendente(token);
             } else if (message === 'Bad credentials') {
                 setError('Email ou senha incorretos');
             }
         } catch {
             setError('Erro ao realizar login. Tente novamente.');
         }
+    };
+
+    const validaAtendente = async (token) => {
+
+        const resposta = await doRequest('http://localhost:8080/usuario/valida-atendente', 'GET', null, {
+            Authorization: `Bearer ${token}`,
+        });
+
+        if (resposta.data === false) {
+            navigate('/home');
+        } else {
+            navigate('/home-atendentes');
+        }
+
     };
 
     return (

@@ -4,6 +4,7 @@ import com.nuhcorre.chupebankbackend.DTO.UserLoginDTO;
 import com.nuhcorre.chupebankbackend.DTO.UserRegisterDTO;
 import com.nuhcorre.chupebankbackend.model.Cartao;
 import com.nuhcorre.chupebankbackend.model.Conta_Bancaria;
+import com.nuhcorre.chupebankbackend.model.Role;
 import com.nuhcorre.chupebankbackend.model.Usuario;
 import com.nuhcorre.chupebankbackend.repository.Conta_BancariaRepository;
 import com.nuhcorre.chupebankbackend.repository.UsuarioRepository;
@@ -31,13 +32,16 @@ public class AuthenticationService {
 
     private final ExtratoService extratoService;
 
+    private final RoleService roleService;
+
     public AuthenticationService(
             UsuarioRepository userRepository,
             AuthenticationManager authenticationManager,
             PasswordEncoder passwordEncoder,
             Conta_BancariaService contaBancariaService,
             CartaoService cartaoService,
-            ExtratoService extratoService
+            ExtratoService extratoService,
+            RoleService roleService
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
@@ -45,6 +49,7 @@ public class AuthenticationService {
         this.contaBancariaService = contaBancariaService;
         this.cartaoService = cartaoService;
         this.extratoService = extratoService;
+        this.roleService = roleService;
     }
 
     public Usuario cadastrar(UserRegisterDTO input) {
@@ -70,6 +75,8 @@ public class AuthenticationService {
         user.setSenha(passwordEncoder.encode(input.senha()));
         user.setCpf(input.cpf());
         user.setTelefone(input.telefone());
+        roleService.addRoleToUsuario(user.getId(), new Role(null, "USER"));
+
 
         // Salvar o usuário antes de criar outras entidades relacionadas
         Usuario savedUser = userRepository.save(user);
@@ -89,6 +96,22 @@ public class AuthenticationService {
         var authentication = new UsernamePasswordAuthenticationToken(input.email(), input.senha());
         var auth = authenticationManager.authenticate(authentication);
         return userRepository.findByEmail(input.email()).orElseThrow();
+    }
+
+    public void transformarAtendente(UUID usuarioId) {
+
+        Usuario user = userRepository.findById(usuarioId).
+                orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        roleService.addRoleToUsuario(user.getId(), new Role(null, "ATENDENTE"));
+
+    }
+
+    public Boolean validaAtendente(UUID usuarioId) {
+        Usuario user = userRepository.findById(usuarioId).
+                orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        return user.getRoles().stream().anyMatch(role -> role.getNome().equals("ATENDENTE"));
     }
 
     public void deletarUsuario(UUID usuarioId) {

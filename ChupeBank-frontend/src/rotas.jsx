@@ -5,6 +5,8 @@ import HomePageUser from "./pages/Home";
 import Cartao from "./pages/Cartao";
 import Extrato from "./pages/Extrato";
 import AlterarSenhaCartao from "./pages/AlterarSenha";
+import HomeAtendentes from "./pages/HomeAtendentes";
+import Atendimento from "./pages/ChatAtendimento";
 
 const routes = [
     { path: "/", element: <Principal /> },
@@ -14,6 +16,8 @@ const routes = [
     { path: "/cartao", element: <Cartao /> },
     { path: "/extrato", element: <Extrato /> },
     { path: "/alterar-senha", element: <AlterarSenhaCartao /> },
+    { path: "/home-atendentes", element: <HomeAtendentes /> },
+    { path: "/atendimento/:id", element: <Atendimento /> },
   ];
   
 export default routes;

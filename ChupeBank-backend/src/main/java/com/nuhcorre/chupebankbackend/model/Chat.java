@@ -1,68 +1,38 @@
 package com.nuhcorre.chupebankbackend.model;
 
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
+@Data
+@Entity
+@RequiredArgsConstructor
 public class Chat {
-    private String content;
-    private String sender;
-    private MessageType type;
 
-    public enum MessageType {
-        CHAT, LEAVE, JOIN
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public String getContent() {
-        return content;
-    }
+    @ManyToOne
+    @JoinColumn(name = "id_usuario1")
+    private Usuario usuario1;
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+    @ManyToOne
+    @JoinColumn(name = "id_usuario2")
+    private Usuario usuario2;
 
-    public String getSender() {
-        return sender;
-    }
+    @Column(nullable = false)
+    private String roomHash;
 
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
+    private String ultimaMensagem;
 
-    public MessageType getType() {
-        return type;
-    }
+    private String titulo;
 
-    public void setType(MessageType type) {
-        this.type = type;
-    }
+    @Column(name = "descricao", columnDefinition = "TEXT")
+    private String descricao;
 
-    public static ChatBuilder builder() {
-        return new ChatBuilder();
-    }
 
-    public static class ChatBuilder {
-        private String content;
-        private String sender;
-        private MessageType type;
 
-        public ChatBuilder content(String content) {
-            this.content = content;
-            return this;
-        }
-
-        public ChatBuilder sender(String sender) {
-            this.sender = sender;
-            return this;
-        }
-
-        public ChatBuilder type(MessageType type) {
-            this.type = type;
-            return this;
-        }
-
-        public Chat build() {
-            Chat chat = new Chat();
-            chat.setContent(this.content);
-            chat.setSender(this.sender);
-            chat.setType(this.type);
-            return chat;
-        }
-    }
 }
