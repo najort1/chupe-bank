@@ -15,5 +15,5 @@ public interface CartaoRepository extends JpaRepository<Cartao, UUID> {
     List<Cartao> findAllByContaBancariaId(UUID contaBancariaId);
     List<Cartao> findByTentativasGreaterThan(int tentativas);
     List<Cartao> findByContaBancariaUsuarioId(UUID usuarioId);
-
+    Optional<Cartao> findFirstByContaBancariaNumeroConta(String numeroConta);
 }

@@ -141,7 +141,7 @@ public class CartaoController {
 
             var novaSenhDescriptografada = AESUtil.decrypt(consultaCartaoDTO.novaSenha(), aesKey, aesIv);
 
-            cartaoService.alterarSenha(cartao.getContaBancaria().getNumeroConta(), novaSenhDescriptografada);
+            cartaoService.alterarSenha(consultaCartaoDTO.id(), novaSenhDescriptografada);
             return ResponseEntity.ok("Senha alterada com sucesso");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro ao descriptografar senha " + e.getMessage());

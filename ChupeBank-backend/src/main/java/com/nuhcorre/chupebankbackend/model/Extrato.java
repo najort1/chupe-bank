@@ -14,14 +14,6 @@ import java.util.UUID;
 @Entity
 public class Extrato {
 
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
     @Id
     private UUID id;
 

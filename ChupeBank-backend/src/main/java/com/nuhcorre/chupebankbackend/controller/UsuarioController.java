@@ -1,10 +1,7 @@
 package com.nuhcorre.chupebankbackend.controller;
 
 import com.nuhcorre.chupebankbackend.model.Usuario;
-import com.nuhcorre.chupebankbackend.service.AuthenticationService;
-import com.nuhcorre.chupebankbackend.service.Conta_BancariaService;
-import com.nuhcorre.chupebankbackend.service.CartaoService;
-import com.nuhcorre.chupebankbackend.service.ExtratoService;
+import com.nuhcorre.chupebankbackend.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,12 +19,15 @@ public class UsuarioController {
     private final Conta_BancariaService contaBancariaService;
     private final CartaoService cartaoService;
     private final ExtratoService extratoService;
+    private final ChatService chatService;
 
-    public UsuarioController(AuthenticationService authenticationService, Conta_BancariaService contaBancariaService, CartaoService cartaoService, ExtratoService extratoService) {
+    public UsuarioController(AuthenticationService authenticationService, Conta_BancariaService contaBancariaService, CartaoService cartaoService, ExtratoService extratoService, ChatService chatService) {
         this.authenticationService = authenticationService;
         this.contaBancariaService = contaBancariaService;
         this.cartaoService = cartaoService;
         this.extratoService = extratoService;
+        this.chatService = chatService;
+
     }
 
     private Usuario obterUsuarioAutenticado() {
@@ -45,6 +45,7 @@ public class UsuarioController {
                 extratoService.deletarTodoExtrato(usuarioId);
                 cartaoService.deletarCartoesPorUsuarioId(usuarioId);
                 contaBancariaService.deletarConta(usuarioId);
+                chatService.deletarTudo(usuarioId);
                 authenticationService.deletarUsuario(usuarioId);
                 return ResponseEntity.ok("Usuário deletado com sucesso");
             } catch (Exception e) {
@@ -54,10 +55,18 @@ public class UsuarioController {
         return ResponseEntity.status(401).body("Usuário não autenticado");
     }
 
-    @PostMapping("/atendente")
+    @PostMapping("/mudar")
     public ResponseEntity<?> tornarAtendente() {
         Usuario usuarioAutenticado = obterUsuarioAutenticado();
         if (usuarioAutenticado != null) {
+
+            Boolean isAtendente = authenticationService.validaAtendente(usuarioAutenticado.getId());
+
+            if (isAtendente) {
+                authenticationService.transformarCliente(usuarioAutenticado.getId());
+                return ResponseEntity.ok("Usuário agora é um cliente");
+            }
+
             try {
                 authenticationService.transformarAtendente(usuarioAutenticado.getId());
                 return ResponseEntity.ok("Usuário agora é um atendente");

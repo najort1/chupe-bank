@@ -35,7 +35,10 @@ const HomeAtendentes = () => {
     
     if(resposta.status === 200){
         navigate(`/atendimento/${roomHash}`);
-    }else{
+    }else if(resposta.status === 400){
+        navigate(`/atendimento/${roomHash}`);
+    }
+    else{
         alert('Erro ao entrar na sala de atendimento');
     }
 

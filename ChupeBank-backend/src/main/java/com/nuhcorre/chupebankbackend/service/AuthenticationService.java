@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.nuhcorre.chupebankbackend.util.ValidaCPF;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -53,43 +55,49 @@ public class AuthenticationService {
     }
 
     public Usuario cadastrar(UserRegisterDTO input) {
+        try {
+            if(!ValidaCPF.isCPF(input.cpf())) {
+                throw new IllegalArgumentException("CPF inválido");
+            } else if(!input.email().contains("@") || !input.email().contains(".")){
+                throw new IllegalArgumentException("Email inválido");
+            } else if(input.senha().length() < 6){
+                throw new IllegalArgumentException("Senha inválida");
+            } else if (userRepository.existsByEmail(input.email())) {
+                throw new IllegalArgumentException("Email já cadastrado");
+            } else if (userRepository.existsByCpf(input.cpf())) {
+                throw new IllegalArgumentException("CPF já cadastrado");
+            } else if (userRepository.existsByTelefone(input.telefone())) {
+                throw new IllegalArgumentException("Telefone já cadastrado");
+            }
 
-        if(!ValidaCPF.isCPF(input.cpf())) {
-            throw new IllegalArgumentException("CPF inválido");
-        }else if(!input.email().contains("@") || !input.email().contains(".")){
-            throw new IllegalArgumentException("Email inválido");
-        }else if(input.senha().length() < 6){
-            throw new IllegalArgumentException("Senha inválida");
-        }else if (userRepository.existsByEmail(input.email())) {
-            throw new IllegalArgumentException("Email já cadastrado");
-        }else if (userRepository.existsByCpf(input.cpf())) {
-            throw new IllegalArgumentException("CPF já cadastrado");
-        }else if (userRepository.existsByTelefone(input.telefone())) {
-            throw new IllegalArgumentException("Telefone já cadastrado");
+            Usuario user = new Usuario();
+            user.setId(UUID.randomUUID());
+            user.setNome(input.nome());
+            user.setEmail(input.email());
+            user.setSenha(passwordEncoder.encode(input.senha()));
+            user.setCpf(input.cpf());
+            user.setTelefone(input.telefone());
+
+
+
+            // Salvar o usuário
+            Usuario savedUser = userRepository.save(user);
+
+            // Criar e salvar a conta bancária
+            Conta_Bancaria contaBancaria = contaBancariaService.criarConta(savedUser);
+
+            // Criar e salvar o cartão
+            Cartao cartao = new Cartao();
+            cartao.setContaBancaria(contaBancaria);
+            cartaoService.criarCartao(cartao);
+
+            roleService.addRoleToUsuario(savedUser.getId(), new Role(null, "CLIENTE"));
+
+
+            return savedUser;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao realizar cadastro: " + e.getMessage());
         }
-
-        Usuario user = new Usuario();
-        user.setId(UUID.randomUUID());
-        user.setNome(input.nome());
-        user.setEmail(input.email());
-        user.setSenha(passwordEncoder.encode(input.senha()));
-        user.setCpf(input.cpf());
-        user.setTelefone(input.telefone());
-        roleService.addRoleToUsuario(user.getId(), new Role(null, "USER"));
-
-
-        // Salvar o usuário antes de criar outras entidades relacionadas
-        Usuario savedUser = userRepository.save(user);
-
-        // Criar e salvar a conta bancária
-        Conta_Bancaria contaBancaria = contaBancariaService.criarConta(savedUser);
-
-        // Criar e salvar o cartão
-        Cartao cartao = new Cartao();
-        cartao.setContaBancaria(contaBancaria);
-        cartaoService.criarCartao(cartao);
-
-        return savedUser;
     }
 
     public Usuario logar(UserLoginDTO input) {
@@ -99,12 +107,27 @@ public class AuthenticationService {
     }
 
     public void transformarAtendente(UUID usuarioId) {
+        Usuario user = userRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
-        Usuario user = userRepository.findById(usuarioId).
-                orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+        // Limpar as roles anteriores
+        user.getRoles().clear();
+        userRepository.save(user);
 
+        // Adicionar a nova role
         roleService.addRoleToUsuario(user.getId(), new Role(null, "ATENDENTE"));
+    }
 
+    public void transformarCliente(UUID usuarioId) {
+        Usuario user = userRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        // Limpar as roles anteriores
+        user.getRoles().clear();
+        userRepository.save(user);
+
+        // Adicionar a nova role
+        roleService.addRoleToUsuario(user.getId(), new Role(null, "CLIENTE"));
     }
 
     public Boolean validaAtendente(UUID usuarioId) {

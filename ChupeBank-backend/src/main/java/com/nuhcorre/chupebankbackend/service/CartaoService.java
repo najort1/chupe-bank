@@ -33,6 +33,13 @@ public class CartaoService {
         return cartaoRepository.findByContaBancariaId(id).orElse(null);
     }
 
+    public void aumentarLimites(UUID cartaoId, Double valor) {
+        cartaoRepository.findById(cartaoId).ifPresent(cartao -> {
+            cartao.setLimite(cartao.getLimite() + valor);
+            cartaoRepository.save(cartao);
+        });
+    }
+
     public Cartao capturarCartaoId(UUID id) {
         return cartaoRepository.findById(id).orElse(null);
     }
@@ -52,8 +59,8 @@ public class CartaoService {
         });
     }
 
-    public void alterarSenha(String numeroConta, String senha) {
-        cartaoRepository.findByContaBancariaNumeroConta(numeroConta).ifPresent(cartao -> {
+    public void alterarSenha(UUID cartaoId, String senha) {
+        cartaoRepository.findById(cartaoId).ifPresent(cartao -> {
             cartao.setSenha(passwordEncoder.encode(senha));
             cartaoRepository.save(cartao);
         });

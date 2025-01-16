@@ -65,14 +65,22 @@ public class ChatService {
         }
     }
 
+    public void deletarTudo(UUID idUsuario) {
+        List<Chat> chats = chatRepository.findAllByUsuario1OrUsuario2(idUsuario);
+        chatRepository.deleteAll(chats);
+    }
+
     public Boolean atendenteJaEntrou(UUID idUsuario, String roomHash) {
         Optional<Chat> chat = chatRepository.findByRoomHash(roomHash);
         if (chat.isPresent()) {
-            if (chat.get().getUsuario2().getId().equals(idUsuario)) {
-                return false;
-            } else {
-                return true;
+            Usuario usuario2 = chat.get().getUsuario2();
+
+            if(usuario2 != null){
+                return usuario2.getId().equals(idUsuario);
             }
+
+            return false;
+
         } else {
             return null;
         }

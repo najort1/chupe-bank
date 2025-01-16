@@ -64,7 +64,7 @@ public class Conta_BancariaService {
 
             conta.setSaldo(conta.getSaldo() + valor);
             conta_bancariaRepository.save(conta);
-            extratoService.registrarTransacao(conta.getId(), "DEPOSITO", valor, conta.getSaldo(), "Depósito de dinheiro");
+            extratoService.registrarTransacao(conta.getId(), "DEPOSITO", valor, conta.getSaldo(), "Depósito de dinheiro",null);
         });
     }
 
@@ -78,7 +78,7 @@ public class Conta_BancariaService {
 
             conta.setSaldo(conta.getSaldo() - valor);
             conta_bancariaRepository.save(conta);
-            extratoService.registrarTransacao(conta.getId(), "SAQUE", valor, conta.getSaldo(), "Saque de dinheiro");
+            extratoService.registrarTransacao(conta.getId(), "SAQUE", valor, conta.getSaldo(), "Saque de dinheiro",null);
         });
     }
 
@@ -103,7 +103,19 @@ public class Conta_BancariaService {
 
             conta.setSaldo(conta.getSaldo() - transferirDTO.valor());
             conta_bancariaRepository.save(conta);
-            extratoService.registrarTransacao(conta.getId(), "TRANSFERENCIA", transferirDTO.valor(), conta.getSaldo(), "Transferência de dinheiro para " + transferirDTO.chave());
+
+            Conta_Bancaria contaDestino = null;
+
+            if(transferirDTO.tipoChave() == TipoChave.CPF){
+                contaDestino = conta_bancariaRepository.findByUsuarioCpf(transferirDTO.chave()).orElseThrow();
+            }else if (transferirDTO.tipoChave() == TipoChave.EMAIL) {
+                contaDestino = conta_bancariaRepository.findByUsuarioEmail(transferirDTO.chave()).orElseThrow();
+            }else if (transferirDTO.tipoChave() == TipoChave.NUMERO_CONTA){
+                contaDestino = conta_bancariaRepository.findByNumeroConta(transferirDTO.chave()).orElseThrow();
+            }
+
+
+            extratoService.registrarTransacao(conta.getId(), "TRANSFERENCIA", transferirDTO.valor(), conta.getSaldo(), "Transferência de dinheiro para " + transferirDTO.chave(),contaDestino.getId());
         });
 
         switch (transferirDTO.tipoChave()){

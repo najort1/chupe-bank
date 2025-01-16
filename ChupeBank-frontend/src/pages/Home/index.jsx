@@ -59,6 +59,20 @@ const HomePageUser = () => {
     });
   };
 
+  const validaAtendente = async (token) => {
+
+    const resposta = await doRequest('http://localhost:8080/usuario/valida-atendente', 'GET', null, {
+        Authorization: `Bearer ${token}`,
+    });
+
+    if (resposta.data === false) {
+        navigate('/home');
+    } else {
+        navigate('/home-atendentes');
+    }
+
+};
+
   const fetchDadosBancarios = async () => {
     const token = localStorage.getItem("token");
     const response = await doRequest(
@@ -82,6 +96,9 @@ const HomePageUser = () => {
   };
 
   useEffect(() => {
+
+    validaAtendente(localStorage.getItem('token'));
+
     if (localStorage.getItem('token') === null) {
         navigate('/login');
     }
@@ -361,7 +378,9 @@ const HomePageUser = () => {
           )}
           <h1 className="titulo text-2xl mb-4">Cartões</h1>
         </div>
-        <div className="cartoes flex flex-col gap-4">
+        <div className="cartoes flex flex-col gap-4
+          xl:flex-row
+        ">
           {cartoes.map((cartao) => (
             <div
               key={cartao.id}

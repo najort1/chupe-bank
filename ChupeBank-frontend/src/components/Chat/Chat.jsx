@@ -17,6 +17,8 @@ const Chat = () => {
   const [stompClient, setStompClient] = useState(null);
   const [client, setClient] = useState(null); // Novo useState para o client do STOMP
   const [receiverId, setReceiverId] = useState(null);
+  const [newChatTitle, setNewChatTitle] = useState("");
+  const [newChatDescription, setNewChatDescription] = useState("");
 
   const navigate = useNavigate();
 
@@ -34,6 +36,8 @@ const Chat = () => {
   useEffect(() => {
     if (currentPage === 'chats') {
       fetchChats();
+      setMessage("");
+      setMessages([]);
     }
   }, [currentPage]);
 
@@ -41,7 +45,7 @@ const Chat = () => {
 
     if (selectedChat) {
       handleSincronizarChat();
-      client.subscribe(`/topic/chat/${selectedChat.roomHash}`, (message) => {
+      const subscription = client.subscribe(`/topic/chat/${selectedChat.roomHash}`, (message) => {
         const receivedMessage = JSON.parse(message.body);
 
         if(receivedMessage.senderId !== userId && receiverId === null){
@@ -68,6 +72,10 @@ const Chat = () => {
         destination: `/app/chat/${selectedChat.roomHash}`,
         body: JSON.stringify(payload),
       });
+
+      return () => {
+        subscription.unsubscribe();
+      };
 
     }
 
@@ -174,12 +182,17 @@ const Chat = () => {
 
   }
 
-  const handleIniciarNovoChat = async () => {
+
+  const handleCreateNewChat = async () => {
     try {
-      const response = await doRequest('http://localhost:8080/atendimento/criar', 'POST', null, {
+      const payload = {
+        titulo: newChatTitle,
+        descricao: newChatDescription,
+      };
+      const response = await doRequest('http://localhost:8080/atendimento/criar', 'POST', payload, {
         'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
       });
-
+  
       if (response.status === 200) {
         setSelectedChat(response.data);
         setCurrentPage('chatDetails');
@@ -190,6 +203,40 @@ const Chat = () => {
       console.error('Erro ao criar chat:', error);
     }
   };
+  
+  const renderCreateChat = () => (
+    <div className="p-4">
+      <h2 className="text-lg font-semibold mb-4">Criar Novo Chat</h2>
+      <div className="flex flex-col gap-4">
+        <input
+          type="text"
+          className="p-2 rounded border dark:bg-gray-800 dark:text-white"
+          placeholder="Título"
+          value={newChatTitle}
+          onChange={(e) => setNewChatTitle(e.target.value)}
+        />
+        <textarea
+          className="p-2 rounded border dark:bg-gray-800 dark:text-white"
+          placeholder="Descrição"
+          value={newChatDescription}
+          onChange={(e) => setNewChatDescription(e.target.value)}
+        />
+        <button
+          className="py-2 px-4 rounded bg-green-500 text-white hover:bg-green-600"
+          onClick={handleCreateNewChat}
+        >
+          Criar Chat
+        </button>
+        <button
+          className="py-2 px-4 rounded bg-gray-500 text-white hover:bg-gray-600"
+          onClick={() => setCurrentPage('menu')}
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
+  
 
   const renderMenu = () => (
     <div className="p-4">
@@ -198,12 +245,13 @@ const Chat = () => {
         <button className="py-2 px-4 rounded bg-blue-500 text-white hover:bg-blue-600" onClick={() => setCurrentPage('chats')}>
           Exibir chats anteriores
         </button>
-        <button className="py-2 px-4 rounded bg-green-500 text-white hover:bg-green-600" onClick={handleIniciarNovoChat}>
+        <button className="py-2 px-4 rounded bg-green-500 text-white hover:bg-green-600" onClick={() => setCurrentPage('createChat')}>
           Iniciar um novo chat
         </button>
       </div>
     </div>
   );
+
 
   const renderChatList = () => (
     <div className="flex flex-col h-full">
@@ -257,7 +305,7 @@ const Chat = () => {
       <img src={chatIcon} alt="Chat" className="w-12 h-12 dark:invert cursor-pointer" onClick={() => setIsOpen(!isOpen)} />
       {isOpen && (
         <div className="chat-box fixed bottom-24 right-4 w-80 h-96 rounded-lg bg-white dark:bg-gray-800 shadow-lg flex flex-col">
-          {currentPage === 'menu' ? renderMenu() : currentPage === 'chats' ? renderChatList() : renderChatDetails()}
+          {currentPage === 'menu' ? renderMenu() : currentPage === 'chats' ? renderChatList() : currentPage === 'chatDetails' ? renderChatDetails() : renderCreateChat()}
         </div>
       )}
     </div>

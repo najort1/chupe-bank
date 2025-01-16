@@ -44,6 +44,26 @@ const Header = () => {
 
     const navigate = useNavigate();
 
+    const transformaAterndente = async () => {
+
+        try {
+          const response = await doRequest('http://localhost:8080/usuario/mudar', 'POST', null, {
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          });
+
+          if(response.status === 200){
+            navigate('/home-atendentes');
+          }else{
+            console.log('Erro ao criar atendente');
+          }
+          
+
+        } catch (error) {
+          console.error('Erro ao buscar os chats:', error);
+        }
+
+    }
+
 
   return (
     <header className="site-header h-12 shadow-md flex flex-row justify-between items-center p-
@@ -78,7 +98,7 @@ const Header = () => {
                         <DropdownMenu aria-label="Profile Actions" variant="flat">
                             
                             <DropdownItem 
-                              onClick={() => navigate('/login')}
+                              onPress={() => navigate('/login')}
                               textValue="Faça login ou cadastre-se"
                             key='info'>
                                 <div className="dropdown-item-no-user flex flex-row justify-center">
@@ -89,7 +109,7 @@ const Header = () => {
                             </DropdownItem>
 
                           <DropdownItem 
-                            onClick={() => navigate('/login')}
+                            onPress={() => navigate('/login')}
                             textValue="Entrar"
                           key="settings">
                             <div className="dropdown-item-no-user flex flex-row items-center w-full cursor-pointer">
@@ -100,7 +120,7 @@ const Header = () => {
                           </DropdownItem>
                           <DropdownItem 
                           textValue="Cadastrar-se"
-                            onClick={() => navigate('/cadastro')}
+                            onPress={() => navigate('/cadastro')}
                           key="team_settings">
                             <div className="dropdown-item-no-user flex flex-row items-center w-full cursor-pointer">
                                 {isDarkMode ? <box-icon color='#ffff' name='user-plus'></box-icon> : <box-icon name='user-plus'></box-icon>}
@@ -122,14 +142,19 @@ const Header = () => {
                 <DropdownMenu aria-label="Profile Actions" variant="flat">
                   <DropdownItem
                               textValue="Logado com o email:"
-                              onClick={() => navigate('/home')}
+                              onPress={() => navigate('/home')}
                               key="profile" className="h-14 gap-2">
                     <p className="font-semibold">Logado com o email:</p>
                     <p className="font-semibold">{nome}</p>
                   </DropdownItem>
                   <DropdownItem 
                     textValue="Home"
-                  onClick={() => {setLogged(false);localStorage.clear();navigate('/');}} key="logout" color="danger">Sair da conta</DropdownItem>
+                    onPress={() => {setLogged(false);localStorage.clear();navigate('/');}} key="logout" color="danger">Sair da conta
+                  </DropdownItem>
+                  <DropdownItem 
+                    textValue="Atendente"
+                    onPress={() => {transformaAterndente();}} key="atendente" color="success">Mudar tipo de conta
+                  </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             )}

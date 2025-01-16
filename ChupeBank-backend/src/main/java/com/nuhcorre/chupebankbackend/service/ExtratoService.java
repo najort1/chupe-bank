@@ -27,16 +27,30 @@ public class ExtratoService {
         this.conta_BancariaRepository = conta_BancariaRepository;
     }
 
-    public void registrarTransacao(UUID contaBancariaId, String tipoTransacao, Double valor, Double saldoAposTransacao, String descricao) {
+    public void registrarTransacao(UUID contaBancariaId, String tipoTransacao, Double valor, Double saldoAposTransacao, String descricao, UUID contaDestinoId) {
         Conta_Bancaria contaBancaria = conta_BancariaRepository.findById(contaBancariaId).orElseThrow(() -> new IllegalArgumentException("Conta bancária não encontrada"));
         Extrato extrato = new Extrato();
+        extrato.setId(UUID.randomUUID()); // Definindo o ID manualmente
         extrato.setContaBancaria(contaBancaria);
         extrato.setDataHora(LocalDateTime.now());
         extrato.setTipoTransacao(tipoTransacao);
         extrato.setValor(valor);
         extrato.setSaldoAposTransacao(saldoAposTransacao);
         extrato.setDescricao(descricao);
-        System.out.println("Descrição: " + descricao); // Adicione este log para depuração
+
+        if(tipoTransacao.equals("TRANSFERENCIA")) {
+            Conta_Bancaria contaDestino = conta_BancariaRepository.findById(contaDestinoId).orElseThrow(() -> new IllegalArgumentException("Conta destino não encontrada"));
+            Extrato extratoDestino = new Extrato();
+            extratoDestino.setId(UUID.randomUUID());
+            extratoDestino.setContaBancaria(contaDestino);
+            extratoDestino.setDataHora(LocalDateTime.now());
+            extratoDestino.setTipoTransacao("RECEBIMENTO"); // Corrigido aqui
+            extratoDestino.setValor(valor);
+            extratoDestino.setSaldoAposTransacao(contaDestino.getSaldo() + valor);
+            extratoDestino.setDescricao("Recebimento de transferência de " + contaBancaria.getUsuario().getNome());
+            extratoRepository.save(extratoDestino);
+        }
+
         extratoRepository.save(extrato);
     }
 
